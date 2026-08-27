@@ -2,7 +2,7 @@
    SKYBOOK AIRLINE RESERVATION SYSTEM
    FRESH SERVER.JS
    ========================================================= */
-
+require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql2/promise");
 const cors = require("cors");
@@ -30,21 +30,14 @@ app.use(express.static(__dirname));
    ========================================================= */
 
 const pool = mysql.createPool({
-
-    host: "localhost",
-
-    user: "root",
-
-    password: "Rslj@4444",
-
-    database: "SkyBook",
-
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: Number(process.env.DB_PORT) || 3306,
     waitForConnections: true,
-
     connectionLimit: 10,
-
     queueLimit: 0
-
 });
 
 
