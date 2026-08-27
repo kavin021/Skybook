@@ -1,0 +1,358 @@
+/* =====================================================
+   SKYBOOK REGISTER PAGE
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #EAF6FF;
+
+    color: #123B60;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* =====================================================
+   REGISTER CONTAINER
+===================================================== */
+
+.register-container {
+    width: 100%;
+    max-width: 460px;
+
+    padding: 25px;
+}
+
+
+/* =====================================================
+   REGISTER CARD
+===================================================== */
+
+.register-card {
+    background: #FFFFFF;
+
+    border-radius: 18px;
+
+    padding: 38px;
+
+    box-shadow:
+        0 12px 35px
+        rgba(8, 121, 201, 0.12);
+}
+
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+.logo {
+    text-align: center;
+
+    font-size: 30px;
+
+    font-weight: 700;
+
+    color: #0879C9;
+
+    margin-bottom: 20px;
+}
+
+
+/* =====================================================
+   HEADING
+===================================================== */
+
+h1 {
+    text-align: center;
+
+    margin: 0;
+
+    font-size: 28px;
+
+    color: #123B60;
+}
+
+
+.subtitle {
+    text-align: center;
+
+    color: #6B8499;
+
+    margin:
+        10px 0 28px;
+
+    line-height: 1.5;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+
+.form-group label {
+    display: block;
+
+    font-weight: 600;
+
+    margin-bottom: 7px;
+
+    color: #123B60;
+}
+
+
+.form-group input {
+    width: 100%;
+
+    padding:
+        13px 14px;
+
+    border:
+        1px solid #C9DFEE;
+
+    border-radius: 9px;
+
+    font-size: 15px;
+
+    outline: none;
+
+    background: #FFFFFF;
+
+    color: #123B60;
+
+    transition: 0.2s;
+}
+
+
+.form-group input::placeholder {
+    color: #9AAEBD;
+}
+
+
+.form-group input:focus {
+    border-color: #0879C9;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(8, 121, 201, 0.10);
+}
+
+
+/* =====================================================
+   REGISTER BUTTON
+===================================================== */
+
+.register-btn {
+    width: 100%;
+
+    border: none;
+
+    border-radius: 9px;
+
+    padding: 14px;
+
+    margin-top: 5px;
+
+    background: #0879C9;
+
+    color: #FFFFFF;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+.register-btn:hover {
+    background: #0669AF;
+}
+
+
+.register-btn:active {
+    transform: scale(0.98);
+}
+
+
+/* =====================================================
+   LOGIN LINK
+===================================================== */
+
+.login-text {
+    text-align: center;
+
+    margin-top: 22px;
+
+    color: #6B8499;
+
+    font-size: 14px;
+}
+
+
+.login-text a {
+    color: #0879C9;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+
+.login-text a:hover {
+    text-decoration: underline;
+}
+
+
+/* =====================================================
+   CUSTOM ALERT OVERLAY
+===================================================== */
+
+.alert-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(18, 59, 96, 0.35);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition: 0.2s;
+
+    z-index: 1000;
+}
+
+
+.alert-overlay.show {
+    opacity: 1;
+
+    visibility: visible;
+}
+
+
+/* =====================================================
+   ALERT BOX
+===================================================== */
+
+.alert-box {
+    width: 90%;
+
+    max-width: 380px;
+
+    background: #FFFFFF;
+
+    border-radius: 16px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, 0.18);
+}
+
+
+.alert-icon {
+    font-size: 42px;
+
+    margin-bottom: 10px;
+}
+
+
+.alert-box h2 {
+    margin:
+        5px 0 10px;
+
+    color: #123B60;
+}
+
+
+.alert-box p {
+    color: #6B8499;
+
+    line-height: 1.5;
+
+    margin-bottom: 0;
+}
+
+
+.alert-box button {
+    margin-top: 15px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    padding:
+        11px 30px;
+
+    background: #0879C9;
+
+    color: #FFFFFF;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.alert-box button:hover {
+    background: #0669AF;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 500px) {
+
+    .register-container {
+        padding: 15px;
+    }
+
+
+    .register-card {
+        padding: 28px 22px;
+    }
+
+
+    .logo {
+        font-size: 26px;
+    }
+
+
+    h1 {
+        font-size: 24px;
+    }
+
+}

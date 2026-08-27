@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        SkyBook - My Bookings
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="my-bookings.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header>
+
+        <div class="logo">
+
+            ✈️ SkyBook
+
+        </div>
+
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="index.html#flight-results">
+                Flights
+            </a>
+
+            <a
+                href="my-bookings.html"
+                class="active"
+            >
+                My Bookings
+            </a>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main>
+
+
+        <section class="booking-search">
+
+            <h1>
+                ✈️ My Bookings
+            </h1>
+
+            <p>
+                Enter your Booking ID to view your reservation.
+            </p>
+
+
+            <div class="search-box">
+
+                <input
+                    type="number"
+                    id="booking-id"
+                    placeholder="Enter Booking ID"
+                    min="1"
+                >
+
+
+                <button onclick="findBooking()">
+
+                    Search Booking
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             RESULT
+        ========================== -->
+
+        <section
+            id="booking-result"
+            class="booking-result"
+        >
+
+        </section>
+
+
+    </main>
+
+
+    <script src="my-bookings.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SkyBook - Manage Seats</title>
+
+    <link rel="stylesheet" href="admin-seats.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+
+        <div class="logo">
+            ✈️ SkyBook
+        </div>
+
+        <div class="nav-actions">
+
+            <button id="dashboardBtn" class="nav-btn">
+                Dashboard
+            </button>
+
+            <button id="logoutBtn" class="logout-btn">
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- MAIN -->
+    <main class="container">
+
+        <div class="page-header">
+
+            <div>
+                <h1>Manage Seats</h1>
+
+                <p>
+                    Select a flight to manage its seats.
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- FLIGHT SELECTOR -->
+        <section class="control-card">
+
+            <label for="flightSelect">
+                Select Flight
+            </label>
+
+            <select id="flightSelect">
+
+                <option value="">
+                    -- Select a Flight --
+                </option>
+
+            </select>
+
+        </section>
+
+
+        <!-- FLIGHT INFORMATION -->
+        <section id="flightInfo" class="flight-info hidden">
+
+            <div>
+                <span>Flight</span>
+                <strong id="flightNumber">-</strong>
+            </div>
+
+            <div>
+                <span>Route</span>
+                <strong id="flightRoute">-</strong>
+            </div>
+
+            <div>
+                <span>Aircraft</span>
+                <strong id="aircraftInfo">-</strong>
+            </div>
+
+            <div>
+                <span>Capacity</span>
+                <strong id="capacityInfo">-</strong>
+            </div>
+
+        </section>
+
+
+        <!-- LEGEND -->
+        <section id="seatSection" class="hidden">
+
+            <div class="legend">
+
+                <div class="legend-item">
+                    <span class="legend-seat available"></span>
+                    Available
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-seat blocked"></span>
+                    Blocked
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-seat booked"></span>
+                    Booked
+                </div>
+
+            </div>
+
+
+            <!-- SEAT MAP -->
+            <div class="aircraft">
+
+                <div class="cockpit">
+                    ✈️ FRONT
+                </div>
+
+                <div id="seatMap" class="seat-map"></div>
+
+                <div class="aircraft-back">
+                    REAR
+                </div>
+
+            </div>
+
+
+            <div class="seat-help">
+                Click an <strong>Available</strong> seat to block it.
+                Click a <strong>Blocked</strong> seat to make it available.
+                Booked seats cannot be changed.
+            </div>
+
+        </section>
+
+
+        <!-- LOADING -->
+        <div id="loading" class="loading hidden">
+            Loading seats...
+        </div>
+
+
+        <!-- CUSTOM ALERT -->
+        <div id="alertBox" class="alert hidden">
+
+            <span id="alertMessage"></span>
+
+            <button id="alertClose">
+                ×
+            </button>
+
+        </div>
+
+    </main>
+
+
+    <script src="admin-seats.js"></script>
+
+</body>
+
+</html>

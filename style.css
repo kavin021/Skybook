@@ -1,0 +1,1762 @@
+/* =====================================================
+   SKYBOOK - FINAL STYLE.CSS
+===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eaf6ff;
+    color: #17324d;
+    min-height: 100vh;
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+nav {
+    height: 72px;
+    width: 100%;
+    padding: 0 7%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #ffffff;
+    border-bottom: 1px solid #d8eaf6;
+
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 800;
+    color: #1769aa;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #49677f;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    color: #0879c9;
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+main {
+    width: 86%;
+    max-width: 1250px;
+    margin: auto;
+    padding: 65px 0 100px;
+}
+
+main > h1 {
+    text-align: center;
+    font-size: 44px;
+    color: #173f63;
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #708ba1;
+    font-size: 17px;
+    margin-bottom: 45px;
+}
+
+
+/* =====================================================
+   SEARCH BOX
+===================================================== */
+
+.search-box {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 30px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr auto;
+    gap: 18px;
+    align-items: end;
+
+    border: 1px solid #d8eaf6;
+
+    box-shadow: 0 12px 35px rgba(34, 85, 120, 0.10);
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #365873;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    height: 48px;
+
+    padding: 0 14px;
+
+    border: 1px solid #c8dceb;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #17324d;
+
+    font-size: 15px;
+    outline: none;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: #0879c9;
+    box-shadow: 0 0 0 3px rgba(8, 121, 201, 0.10);
+}
+
+
+/* =====================================================
+   GENERAL BUTTONS
+===================================================== */
+
+.search-box button,
+.passenger-card button {
+    height: 48px;
+    padding: 0 24px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: linear-gradient(
+        135deg,
+        #1769aa,
+        #0879c9
+    );
+
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.search-box button:hover,
+.passenger-card button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(11, 79, 134, 0.25);
+}
+
+
+/* =====================================================
+   FLIGHT RESULTS
+===================================================== */
+
+.flight-results {
+    margin-top: 70px;
+}
+
+.flight-results h2,
+.passenger-section h2,
+.seat-section h2 {
+    font-size: 30px;
+    color: #173f63;
+    margin-bottom: 25px;
+}
+
+#flight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+
+/* =====================================================
+   FLIGHT CARD
+===================================================== */
+
+.flight-card {
+    background: #ffffff;
+
+    border: 1px solid #dcecf7;
+    border-radius: 16px;
+
+    padding: 25px;
+
+    display: grid;
+    grid-template-columns: 1.1fr 2fr 1fr;
+    align-items: center;
+
+    gap: 25px;
+
+    box-shadow: 0 8px 25px rgba(40, 90, 125, 0.08);
+}
+
+.airline-info {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    padding-right: 20px;
+
+    border-right: 1px dashed #d4dce7;
+}
+
+.airline-name {
+    color: #1769aa;
+    font-weight: 800;
+}
+
+.flight-number {
+    color: #7b91a5;
+    font-size: 13px;
+}
+
+.flight-route {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+}
+
+.time-location {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+}
+
+.time-location strong {
+    font-size: 23px;
+    color: #173f63;
+}
+
+.time-location span {
+    font-size: 13px;
+    color: #71889c;
+    font-weight: 700;
+}
+
+.flight-duration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+    color: #7a8fa3;
+    font-size: 12px;
+}
+
+.flight-line {
+    width: 90px;
+    height: 1px;
+    background: #b9cfdf;
+    text-align: center;
+}
+
+.flight-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+
+    padding-left: 20px;
+
+    border-left: 1px dashed #d4dce7;
+}
+
+.flight-price strong {
+    font-size: 21px;
+    color: #173f63;
+}
+
+.flight-price button {
+    border: none;
+    border-radius: 8px;
+
+    padding: 11px 18px;
+
+    background: #0879c9;
+    color: #ffffff;
+
+    font-weight: 700;
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   NO FLIGHTS
+===================================================== */
+
+.no-flights {
+    background: #ffffff;
+    padding: 40px;
+    text-align: center;
+
+    border-radius: 15px;
+    border: 1px solid #dcecf7;
+}
+
+.no-flights h3 {
+    color: #1769aa;
+    margin-bottom: 10px;
+}
+
+.no-flights p {
+    color: #71889c;
+}
+
+
+/* =====================================================
+   PASSENGER SECTION
+===================================================== */
+
+.passenger-section {
+    margin-top: 70px;
+}
+
+.passenger-card {
+    background: #ffffff;
+
+    border-radius: 18px;
+    padding: 35px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    gap: 22px;
+
+    border: 1px solid #dcecf7;
+
+    box-shadow: 0 10px 30px rgba(40, 90, 125, 0.08);
+}
+
+.passenger-card button {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+
+/* =====================================================
+   SEAT SECTION
+===================================================== */
+
+.seat-section {
+    margin-top: 70px;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+    padding: 40px;
+
+    border: 1px solid #dcecf7;
+
+    box-shadow: 0 12px 35px rgba(40, 90, 125, 0.08);
+}
+
+.seat-section h2 {
+    text-align: center;
+}
+
+
+/* =====================================================
+   SELECTED FLIGHT
+===================================================== */
+
+.selected-flight-info {
+    background: #eaf6ff;
+
+    border-radius: 12px;
+    padding: 16px;
+
+    text-align: center;
+
+    margin-bottom: 25px;
+
+    color: #1769aa;
+
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+
+/* =====================================================
+   SEAT LEGEND
+===================================================== */
+
+.seat-legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 28px;
+
+    margin: 25px 0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: #617d95;
+    font-size: 14px;
+}
+
+.legend-seat {
+    width: 20px;
+    height: 20px;
+
+    border-radius: 5px;
+
+    display: inline-block;
+
+    border: 1px solid #b8d0e8;
+}
+
+.legend-seat.available {
+    background: #ffffff;
+}
+
+.legend-seat.selected {
+    background: #0879c9;
+    border-color: #0879c9;
+}
+
+.legend-seat.occupied {
+    background: #687d8f;
+    border-color: #687d8f;
+}
+
+.legend-seat.blocked {
+    background: #c7cdd2;
+    border-color: #aeb6bd;
+}
+
+
+/* =====================================================
+   AIRCRAFT
+===================================================== */
+
+.aircraft {
+    width: 100%;
+    max-width: 850px;
+
+    margin: 30px auto;
+
+    padding: 30px;
+
+    background: linear-gradient(
+        180deg,
+        #f8fcff,
+        #eaf6fc
+    );
+
+    border: 1px solid #cfe5f4;
+    border-radius: 28px;
+}
+
+.aircraft-header {
+    background: #e3f3fd;
+
+    color: #0879c9;
+
+    font-size: 20px;
+    font-weight: 800;
+
+    text-align: center;
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    margin-bottom: 30px;
+}
+
+.cockpit,
+.aircraft-back {
+    text-align: center;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    color: #8aa0b3;
+}
+
+.cockpit {
+    margin-bottom: 20px;
+}
+
+.aircraft-back {
+    margin-top: 25px;
+}
+
+
+/* =====================================================
+   SEAT MAP
+===================================================== */
+
+.seat-map {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    width: max-content;
+
+    max-width: 100%;
+
+    margin: auto;
+
+    overflow-x: auto;
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+/* =====================================================
+   SEAT
+===================================================== */
+
+.seat {
+    width: 58px;
+    height: 48px;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s,
+        background 0.2s,
+        box-shadow 0.2s;
+
+    background: #ffffff;
+
+    color: #0879c9;
+
+    border: 1px solid #b8d0e8;
+}
+
+
+/* AVAILABLE */
+
+.seat.available {
+    background: #ffffff;
+    color: #0879c9;
+    border-color: #b8d0e8;
+}
+
+.seat.available:hover {
+    background: #e5f3fc;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 12px rgba(
+            8,
+            121,
+            201,
+            0.15
+        );
+}
+
+
+/* SELECTED */
+
+.seat.selected {
+    background: linear-gradient(
+        135deg,
+        #1769aa,
+        #0879c9
+    );
+
+    color: #ffffff;
+
+    border-color: #0879c9;
+
+    box-shadow:
+        0 6px 16px rgba(
+            8,
+            121,
+            201,
+            0.30
+        );
+
+    transform: translateY(-2px);
+}
+
+
+/* BOOKED */
+
+.seat.occupied {
+    background: #687d8f;
+
+    color: #ffffff;
+
+    border-color: #687d8f;
+
+    cursor: not-allowed;
+}
+
+
+/* BLOCKED */
+
+.seat.blocked {
+    background: #c7cdd2;
+
+    color: #ffffff;
+
+    border-color: #aeb6bd;
+
+    cursor: not-allowed;
+}
+
+.seat:disabled {
+    opacity: 1;
+}
+
+
+/* =====================================================
+   AISLE
+===================================================== */
+
+.aisle {
+    width: 35px;
+    flex-shrink: 0;
+}
+
+.seat-empty {
+    width: 58px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+
+/* =====================================================
+   SELECTED SEAT DISPLAY
+===================================================== */
+
+.selected-seat-display {
+    width: 100%;
+
+    margin-top: 30px;
+
+    padding: 18px;
+
+    border-radius: 12px;
+
+    background: #eaf6ff;
+
+    color: #617d95;
+
+    text-align: center;
+
+    font-size: 17px;
+}
+
+.selected-seat-display strong {
+    color: #0879c9;
+    font-size: 19px;
+}
+
+
+/* =====================================================
+   CONFIRM BOOKING
+===================================================== */
+
+/*
+   IMPORTANT:
+   This handles BOTH:
+
+   class="continue-button"
+
+   AND
+
+   class="confirm-booking-btn"
+
+   So either class will work.
+*/
+
+.continue-button,
+.confirm-booking-btn {
+    display: block !important;
+
+    width: 100% !important;
+
+    height: 54px !important;
+
+    margin-top: 25px !important;
+
+    padding: 0 25px !important;
+
+    border: none !important;
+
+    border-radius: 10px !important;
+
+    background: linear-gradient(
+        135deg,
+        #1769aa,
+        #0879c9
+    ) !important;
+
+    color: #ffffff !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+
+    font-size: 16px !important;
+
+    font-weight: 700 !important;
+
+    line-height: normal !important;
+
+    cursor: pointer !important;
+
+    box-shadow:
+        0 5px 15px rgba(
+            8,
+            121,
+            201,
+            0.18
+        ) !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease !important;
+
+    appearance: none !important;
+
+    -webkit-appearance: none !important;
+}
+
+.continue-button:hover,
+.confirm-booking-btn:hover {
+    background: linear-gradient(
+        135deg,
+        #0f5d96,
+        #0569ad
+    ) !important;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 9px 22px rgba(
+            8,
+            121,
+            201,
+            0.30
+        ) !important;
+}
+
+.continue-button:active,
+.confirm-booking-btn:active {
+    transform: translateY(0);
+}
+
+
+/* =====================================================
+   SEAT LOADING / ERROR
+===================================================== */
+
+.seat-loading,
+.seat-error {
+    padding: 30px;
+
+    text-align: center;
+
+    color: #71889c;
+
+    font-size: 16px;
+}
+
+.seat-error {
+    color: #c14d4d;
+}
+
+
+/* =====================================================
+   CUSTOM ALERT
+===================================================== */
+
+.custom-alert-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(
+        20,
+        45,
+        65,
+        0.55
+    );
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    z-index: 9999;
+
+    backdrop-filter: blur(4px);
+}
+
+.custom-alert-overlay.show {
+    display: flex;
+}
+
+.custom-alert-box {
+    width: 400px;
+    max-width: 90%;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 35px 30px;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 60px rgba(
+            0,
+            0,
+            0,
+            0.30
+        );
+}
+
+.custom-alert-icon {
+    width: 65px;
+    height: 65px;
+
+    margin: 0 auto 18px;
+
+    border-radius: 50%;
+
+    background: #eaf6ff;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 32px;
+}
+
+.custom-alert-box h2 {
+    margin-bottom: 10px;
+
+    color: #17324d;
+
+    font-size: 23px;
+}
+
+.custom-alert-box p {
+    color: #6d8296;
+
+    line-height: 1.5;
+
+    margin-bottom: 25px;
+}
+
+.custom-alert-box button {
+    width: 120px;
+    height: 44px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #0879c9;
+
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.custom-alert-box button:hover {
+    background: #0563a5;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 1000px) {
+
+    .search-box {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .search-box button {
+        grid-column: 1 / -1;
+    }
+
+    .flight-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .airline-info {
+        align-items: center;
+
+        padding-right: 0;
+        padding-bottom: 15px;
+
+        border-right: none;
+        border-bottom: 1px dashed #d4dce7;
+    }
+
+    .flight-price {
+        align-items: center;
+
+        padding-left: 0;
+        padding-top: 15px;
+
+        border-left: none;
+        border-top: 1px dashed #d4dce7;
+    }
+
+    .passenger-card {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .passenger-card button {
+        grid-column: 1 / -1;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    nav {
+        height: auto;
+
+        padding: 18px 20px;
+
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .nav-links {
+        gap: 15px;
+
+        flex-wrap: wrap;
+
+        justify-content: center;
+    }
+
+    main {
+        width: 92%;
+        padding: 45px 0 70px;
+    }
+
+    main > h1 {
+        font-size: 34px;
+    }
+
+    .search-box {
+        grid-template-columns: 1fr;
+        padding: 22px;
+    }
+
+    .search-box button {
+        grid-column: auto;
+    }
+
+    .passenger-card {
+        grid-template-columns: 1fr;
+        padding: 25px;
+    }
+
+    .passenger-card button {
+        grid-column: auto;
+    }
+
+    .seat-section {
+        padding: 25px 12px;
+    }
+
+    .seat-legend {
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .aircraft {
+        padding: 20px 10px;
+        overflow-x: auto;
+    }
+
+    .seat {
+        width: 45px;
+        height: 42px;
+        font-size: 13px;
+    }
+
+    .seat-empty {
+        width: 45px;
+        height: 42px;
+    }
+
+    .aisle {
+        width: 15px;
+    }
+
+    .seat-row {
+        gap: 7px;
+    }
+
+    .selected-flight-info {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .flight-route {
+        gap: 8px;
+    }
+
+    .flight-line {
+        width: 55px;
+    }
+}
+/* =========================================================
+   SKYBOOK - PREMIUM PASSENGER DETAILS DESIGN
+   VISUAL ONLY
+   DOES NOT CHANGE BOOKING LOGIC
+========================================================= */
+
+
+/* =========================================================
+   PASSENGER SECTION
+========================================================= */
+
+.passenger-section {
+    margin-top: 80px !important;
+    position: relative;
+}
+
+
+/* =========================================================
+   PASSENGER SECTION TITLE
+========================================================= */
+
+.passenger-section > h2 {
+    font-size: 34px !important;
+    font-weight: 800 !important;
+    color: #123f68 !important;
+    margin-bottom: 10px !important;
+    letter-spacing: -0.5px;
+}
+
+
+/* Small decorative line */
+
+.passenger-section > h2::after {
+    content: "";
+    display: block;
+    width: 65px;
+    height: 4px;
+    margin-top: 12px;
+    border-radius: 10px;
+    background: linear-gradient(
+        90deg,
+        #0879c9,
+        #55b7ef
+    );
+}
+
+
+/* =========================================================
+   PASSENGER MAIN CONTAINER
+========================================================= */
+
+.passenger-card {
+    display: block !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f9fcff 100%
+        ) !important;
+
+    border: 1px solid #d8e9f5 !important;
+
+    border-radius: 24px !important;
+
+    padding: 38px !important;
+
+    box-shadow:
+        0 18px 50px
+        rgba(21, 83, 125, 0.13) !important;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/* Decorative top glow */
+
+.passenger-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #0879c9,
+            #27a4e8,
+            #7ac8f3
+        );
+}
+
+
+/* =========================================================
+   PASSENGER LIST
+========================================================= */
+
+.passenger-list {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap: 24px;
+
+    position: relative;
+
+    z-index: 1;
+}
+
+
+/* =========================================================
+   PASSENGER COUNT / INTRO
+========================================================= */
+
+.passenger-count-text {
+    grid-column: 1 / -1;
+
+    margin: 0 0 4px 0;
+
+    padding: 18px 22px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eaf6ff,
+            #f5fbff
+        );
+
+    border: 1px solid #cfe7f6;
+
+    color: #174b76;
+
+    font-size: 17px;
+
+    font-weight: 500;
+
+    box-shadow:
+        0 5px 18px
+        rgba(17, 91, 140, 0.06);
+}
+
+
+.passenger-count-text strong {
+    color: #0879c9;
+
+    font-size: 19px;
+}
+
+
+/* =========================================================
+   PASSENGER CARD
+========================================================= */
+
+.passenger-card-item {
+    background: #ffffff;
+
+    border: 1px solid #dcebf5;
+
+    border-radius: 18px;
+
+    padding: 25px;
+
+    position: relative;
+
+    box-shadow:
+        0 8px 25px
+        rgba(28, 88, 126, 0.07);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+/* Hover */
+
+.passenger-card-item:hover {
+    transform: translateY(-4px);
+
+    border-color: #a8d5ed;
+
+    box-shadow:
+        0 14px 32px
+        rgba(22, 103, 154, 0.13);
+}
+
+
+/* =========================================================
+   PASSENGER HEADING
+========================================================= */
+
+.passenger-card-item h3 {
+    margin: 0 0 25px 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    color: #123f68;
+
+    font-size: 20px;
+
+    font-weight: 800;
+}
+
+
+/* Number badge */
+
+.passenger-card-item h3::before {
+    content:
+        attr(data-passenger);
+
+    width: 42px;
+
+    height: 42px;
+
+    min-width: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0879c9,
+            #1769aa
+        );
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 6px 15px
+        rgba(8, 121, 201, 0.25);
+}
+
+
+/* =========================================================
+   PASSENGER HEADING TEXT
+========================================================= */
+
+.passenger-card-item h3 {
+    font-size: 0;
+}
+
+
+.passenger-card-item h3::after {
+    content:
+        "Passenger "
+        attr(data-passenger);
+
+    font-size: 20px;
+
+    color: #123f68;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   INPUT GROUP
+========================================================= */
+
+.passenger-card-item .input-group {
+    margin-bottom: 19px;
+
+    gap: 8px;
+}
+
+
+/* =========================================================
+   LABELS
+========================================================= */
+
+.passenger-card-item .input-group label {
+    font-size: 13px;
+
+    font-weight: 800;
+
+    color: #365873;
+
+    letter-spacing: 0.2px;
+
+    padding-left: 2px;
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.passenger-card-item .input-group input {
+    width: 100%;
+
+    height: 52px;
+
+    padding:
+        0 16px;
+
+    border:
+        1px solid #cbdfea;
+
+    border-radius: 11px;
+
+    background:
+        #fafdff;
+
+    color:
+        #17324d;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+/* Placeholder */
+
+.passenger-card-item
+.input-group
+input::placeholder {
+    color: #8da0af;
+
+    opacity: 1;
+}
+
+
+/* Focus */
+
+.passenger-card-item
+.input-group
+input:focus {
+    background: #ffffff;
+
+    border-color: #0879c9;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(8, 121, 201, 0.10);
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================================================
+   INPUT TYPE-SPECIFIC VISUAL ACCENTS
+========================================================= */
+
+.passenger-name-input {
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #fafdff
+        );
+}
+
+
+.passenger-email-input {
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #fafdff
+        );
+}
+
+
+.passenger-phone-input {
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #fafdff
+        );
+}
+
+
+/* =========================================================
+   CONTINUE BUTTON
+========================================================= */
+
+.passenger-list > button {
+    grid-column: 1 / -1;
+
+    width: 100%;
+
+    height: 58px;
+
+    margin-top: 5px;
+
+    border: none;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0879c9,
+            #1769aa
+        );
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.2px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 10px 25px
+        rgba(8, 121, 201, 0.25);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+/* Button hover */
+
+.passenger-list > button:hover {
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 15px 32px
+        rgba(8, 121, 201, 0.32);
+
+    background:
+        linear-gradient(
+            135deg,
+            #0788df,
+            #1769aa
+        );
+}
+
+
+/* Button click */
+
+.passenger-list > button:active {
+    transform:
+        translateY(0);
+}
+
+
+/* =========================================================
+   STEP INDICATOR
+========================================================= */
+
+.passenger-section::before {
+    content:
+        "STEP 2 OF 4  •  PASSENGER DETAILS";
+
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-bottom: 14px;
+
+    padding:
+        7px 14px;
+
+    border-radius: 30px;
+
+    background:
+        #e7f5ff;
+
+    border:
+        1px solid #c8e5f5;
+
+    color:
+        #0879c9;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        1px;
+}
+
+
+/* =========================================================
+   PROGRESS LINE
+========================================================= */
+
+.passenger-section::after {
+    content: "";
+
+    display: block;
+
+    width: 100%;
+
+    height: 5px;
+
+    margin-top: 25px;
+
+    margin-bottom: 25px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #0879c9 0%,
+            #0879c9 50%,
+            #dcecf6 50%,
+            #dcecf6 100%
+        );
+}
+
+
+/* =========================================================
+   DESKTOP - LARGE SCREENS
+========================================================= */
+
+@media (min-width: 1100px) {
+
+    .passenger-card {
+        padding: 42px !important;
+    }
+
+    .passenger-card-item {
+        padding: 28px;
+    }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+    .passenger-list {
+        grid-template-columns: 1fr;
+    }
+
+
+    .passenger-card {
+        padding: 28px !important;
+    }
+
+
+    .passenger-count-text {
+        grid-column: auto;
+    }
+
+
+    .passenger-list > button {
+        grid-column: auto;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .passenger-section {
+        margin-top: 50px !important;
+    }
+
+
+    .passenger-section > h2 {
+        font-size: 28px !important;
+    }
+
+
+    .passenger-section::before {
+        font-size: 10px;
+    }
+
+
+    .passenger-card {
+        padding: 20px !important;
+
+        border-radius: 18px !important;
+    }
+
+
+    .passenger-card-item {
+        padding: 20px;
+
+        border-radius: 15px;
+    }
+
+
+    .passenger-card-item h3 {
+        margin-bottom: 20px;
+    }
+
+
+    .passenger-card-item
+    h3::before {
+        width: 38px;
+
+        height: 38px;
+
+        min-width: 38px;
+    }
+
+
+    .passenger-card-item
+    h3::after {
+        font-size: 18px;
+    }
+
+
+    .passenger-card-item
+    .input-group
+    input {
+        height: 50px;
+    }
+
+
+    .passenger-list > button {
+        height: 55px;
+
+        font-size: 15px;
+    }
+
+}
+
+
+/* =========================================================
+   EXTRA SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+    .passenger-card {
+        padding: 15px !important;
+    }
+
+
+    .passenger-card-item {
+        padding: 17px;
+    }
+
+
+    .passenger-count-text {
+        padding: 15px;
+
+        font-size: 15px;
+    }
+
+}

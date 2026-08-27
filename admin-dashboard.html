@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SkyBook - Admin Dashboard</title>
+
+    <link rel="stylesheet"
+          href="admin-dashboard.css">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
+<nav>
+
+    <a href="index.html" class="logo">
+        ✈️ SkyBook
+    </a>
+
+    <div class="nav-right">
+
+        <span id="admin-name">
+            Administrator
+        </span>
+
+        <button
+            id="logout-button"
+            class="logout-button">
+
+            Logout
+
+        </button>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     MAIN DASHBOARD
+===================================================== -->
+
+<main>
+
+
+    <!-- HEADER -->
+
+    <section class="dashboard-header">
+
+        <div>
+
+            <p class="dashboard-label">
+                ADMINISTRATION
+            </p>
+
+            <h1>
+                Flight Management
+            </h1>
+
+            <p>
+                Manage SkyBook flights and availability
+                from one place.
+            </p>
+
+        </div>
+
+
+        <button
+            id="add-flight-button"
+            class="primary-button">
+
+            + Add Flight
+
+        </button>
+        <button
+    id="manage-seats-button"
+    class="secondary-button">
+
+    💺 Manage Seats
+
+</button>
+
+    </section>
+
+
+
+    <!-- =================================================
+         STATISTICS
+    ================================================== -->
+
+    <section class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                ✈️
+            </div>
+
+            <div>
+
+                <span>
+                    Total Flights
+                </span>
+
+                <strong id="total-flights">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🟢
+            </div>
+
+            <div>
+
+                <span>
+                    Available
+                </span>
+
+                <strong id="available-flights">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🚫
+            </div>
+
+            <div>
+
+                <span>
+                    Cancelled
+                </span>
+
+                <strong id="cancelled-flights">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         FLIGHTS
+    ================================================== -->
+
+    <section class="flights-section">
+
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    Manage Flights
+                </h2>
+
+                <p>
+                    Add, edit or cancel flights.
+                </p>
+
+            </div>
+
+
+            <button
+                id="refresh-flights"
+                class="secondary-button">
+
+                ↻ Refresh
+
+            </button>
+
+        </div>
+
+
+
+        <!-- FLIGHT TABLE -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Flight
+                        </th>
+
+                        <th>
+                            Route
+                        </th>
+
+                        <th>
+                            Departure
+                        </th>
+
+                        <th>
+                            Arrival
+                        </th>
+
+                        <th>
+                            Fare
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="flight-table-body">
+
+                    <!-- Flights will be loaded here -->
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     ADD / EDIT FLIGHT MODAL
+===================================================== -->
+
+<div
+    id="flight-modal"
+    class="modal-overlay">
+
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <span
+                    id="modal-label">
+                    FLIGHT MANAGEMENT
+                </span>
+
+                <h2 id="modal-title">
+                    Add Flight
+                </h2>
+
+            </div>
+
+
+            <button
+                id="close-modal"
+                class="close-button">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+
+        <!-- FORM -->
+
+        <form id="flight-form">
+
+
+            <!-- Hidden ID -->
+
+            <input
+                type="hidden"
+                id="flight-id"
+            >
+
+
+            <div class="form-grid">
+
+
+                <!-- FLIGHT NUMBER -->
+
+                <div class="form-group">
+
+                    <label for="flight-number">
+                        Flight Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="flight-number"
+                        placeholder="Example: SB204"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- AIRLINE -->
+
+                <div class="form-group">
+
+                    <label for="airline-name">
+                        Airline
+                    </label>
+
+                    <input
+                        type="text"
+                        id="airline-name"
+                        placeholder="SkyBook Airlines"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- SOURCE -->
+
+                <div class="form-group">
+
+                    <label for="source">
+                        From
+                    </label>
+
+                    <input
+                        type="text"
+                        id="source"
+                        placeholder="Chennai"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DESTINATION -->
+
+                <div class="form-group">
+
+                    <label for="destination">
+                        To
+                    </label>
+
+                    <input
+                        type="text"
+                        id="destination"
+                        placeholder="Delhi"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DEPARTURE -->
+
+                <div class="form-group">
+
+                    <label for="departure-time">
+                        Departure
+                    </label>
+
+                    <input
+                        type="time"
+                        id="departure-time"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- ARRIVAL -->
+
+                <div class="form-group">
+
+                    <label for="arrival-time">
+                        Arrival
+                    </label>
+
+                    <input
+                        type="time"
+                        id="arrival-time"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DURATION -->
+
+                <div class="form-group">
+
+                    <label for="duration">
+                        Duration
+                    </label>
+
+                    <input
+                        type="text"
+                        id="duration"
+                        placeholder="2h 50m"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- FARE -->
+
+                <div class="form-group">
+
+                    <label for="fare">
+                        Fare (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="fare"
+                        min="0"
+                        step="0.01"
+                        placeholder="5842"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- AIRCRAFT -->
+
+                <div class="form-group">
+
+                    <label for="aircraft-id">
+                        Aircraft
+                    </label>
+
+                    <select
+                        id="aircraft-id"
+                        required>
+
+                        <option value="">
+                            Select Aircraft
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="form-group">
+
+                    <label for="flight-status">
+                        Status
+                    </label>
+
+                    <select
+                        id="flight-status">
+
+                        <option value="Available">
+                            Available
+                        </option>
+
+                        <option value="Full">
+                            Full
+                        </option>
+
+                        <option value="Cancelled">
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- FORM BUTTONS -->
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    id="cancel-modal"
+                    class="secondary-button">
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="primary-button">
+
+                    Save Flight
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     CUSTOM ALERT
+===================================================== -->
+
+<div
+    id="custom-alert"
+    class="custom-alert-overlay">
+
+    <div class="custom-alert-box">
+
+        <div
+            id="alert-icon"
+            class="custom-alert-icon">
+
+            ⚠️
+
+        </div>
+
+        <h2 id="alert-title">
+            Alert
+        </h2>
+
+        <p id="alert-message">
+            Something went wrong.
+        </p>
+
+        <button
+            id="alert-button">
+
+            OK
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<script src="admin-dashboard.js"></script>
+
+</body>
+
+</html>

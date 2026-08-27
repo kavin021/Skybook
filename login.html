@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SkyBook - Login</title>
+
+    <link rel="stylesheet"
+          href="login.css">
+
+</head>
+
+
+<body>
+
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
+
+    <nav>
+
+        <a href="index.html"
+           class="logo">
+            ✈️ SkyBook
+        </a>
+
+        <div class="nav-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="index.html#flight-results">
+                Flights
+            </a>
+
+            <a href="my-bookings.html">
+                My Bookings
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         LOGIN
+    ========================== -->
+
+    <main>
+
+        <div class="login-container">
+
+            <div class="login-card">
+
+
+                <!-- Logo -->
+
+                <div class="login-icon">
+                    ✈️
+                </div>
+
+
+                <h1>
+                    Welcome Back
+                </h1>
+
+
+                <p class="login-subtitle">
+                    Login to manage your SkyBook bookings
+                </p>
+
+
+                <!-- =========================
+                     LOGIN FORM
+                ========================== -->
+
+                <form id="login-form">
+
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                id="toggle-password"
+                                class="toggle-password">
+                                👁
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- LOGIN BUTTON -->
+
+                    <button
+                        type="submit"
+                        class="login-button">
+
+                        Login ✈️
+
+                    </button>
+
+
+                </form>
+
+
+                <!-- REGISTER -->
+
+                <div class="register-section">
+
+                    <span>
+                        Don't have an account?
+                    </span>
+
+                    <a href="register.html">
+                        Create Account
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         CUSTOM ALERT
+    ========================== -->
+
+    <div
+        id="custom-alert"
+        class="custom-alert-overlay">
+
+        <div class="custom-alert-box">
+
+            <div
+                id="alert-icon"
+                class="custom-alert-icon">
+                ⚠️
+            </div>
+
+            <h2 id="alert-title">
+                Alert
+            </h2>
+
+            <p id="alert-message">
+                Something went wrong.
+            </p>
+
+            <button
+                id="alert-button">
+                OK
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <script src="login.js"></script>
+
+</body>
+
+</html>
