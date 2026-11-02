@@ -1,1296 +1,238 @@
 /* =====================================================
-   SKYBOOK - MY BOOKINGS
-   N-PASSENGER / N-TICKET VERSION
-   FRONTEND: LIVE SERVER
-   BACKEND: NODE.JS ON PORT 3000
+   SKYBOOK — MY BOOKINGS
+   • Logged-in users see all their trips.
+   • Anyone can find a booking with its ID + a passenger's email.
+   • Confirmed, upcoming bookings can be cancelled.
 ===================================================== */
 
+(function () {
+    "use strict";
 
-/* =====================================================
-   FIND BOOKING
-===================================================== */
+    const {
+        api, session, escapeHTML, formatMoney, formatTime, formatDate,
+        today, plural, setBusy, toast, EMAIL_RE
+    } = SkyBook;
+    const { renderTicket, badge } = SkyBookTicket;
 
-async function findBooking() {
+    const $ = id => document.getElementById(id);
 
-    const bookingInput =
-        document.getElementById("booking-id");
-
-    const resultBox =
-        document.getElementById("booking-result");
-
-
-    if (!bookingInput || !resultBox) {
-
-        console.error(
-            "❌ My Bookings elements not found."
-        );
-
-        return;
-    }
-
-
-    const bookingID =
-        bookingInput.value.trim();
+    let myBookings = [];
+    let filter = "upcoming";
+    let current = null;        // { booking, email } shown in the detail panel
 
 
     /* =================================================
-       VALIDATION
+       LOGGED-IN TRIPS
     ================================================= */
 
-    if (bookingID === "") {
+    async function loadMyTrips() {
+        const user = session.user;
+        if (!user || user.role !== "user") return;
 
-        alert(
-            "Please enter a Booking ID."
-        );
+        $("my-trips").hidden = false;
+        $("intro-text").textContent = `Signed in as ${user.email}. Booked as a guest? Look it up below.`;
+        $("lookup-title").textContent = "Find another booking";
+        $("trip-list").innerHTML = `<div class="sb-loading">Loading your trips…</div>`;
 
-        return;
+        try {
+            const { bookings } = await api("/api/my-bookings");
+            myBookings = bookings;
+            renderTrips();
+        } catch (error) {
+            $("trip-list").innerHTML =
+                `<div class="sb-card sb-empty"><h3>Couldn't load your trips</h3><p>${escapeHTML(error.message)}</p></div>`;
+        }
     }
 
-
-    if (!/^\d+$/.test(bookingID)) {
-
-        alert(
-            "Please enter a valid Booking ID."
-        );
-
-        return;
+    function isUpcoming(booking) {
+        return booking.bookingStatus === "Confirmed" && booking.travelDate >= today();
     }
 
+    function renderTrips() {
+        const list = myBookings
+            .filter(b => (filter === "upcoming") === isUpcoming(b))
+            .sort((a, b) => filter === "upcoming"
+                ? a.travelDate.localeCompare(b.travelDate)
+                : b.travelDate.localeCompare(a.travelDate));
 
-    /* =================================================
-       SHOW RESULT AREA
-    ================================================= */
-
-    resultBox.style.display =
-        "block";
-
-
-    resultBox.innerHTML = `
-
-        <div class="error-message">
-
-            <h2>
-                🔎 Searching...
-            </h2>
-
-            <p>
-                Retrieving your booking...
-            </p>
-
-        </div>
-
-    `;
-
-
-    /* =================================================
-       CALL BACKEND
-    ================================================= */
-
-    try {
-
-        const response =
-            await fetch(
-                `http://localhost:3000/api/bookings/${encodeURIComponent(bookingID)}`
-            );
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "📦 My Bookings API response:",
-            data
-        );
-
-
-        /* =================================================
-           ERROR RESPONSE
-        ================================================= */
-
-        if (!response.ok) {
-
-            resultBox.innerHTML = `
-
-                <div class="error-message">
-
-                    <h2>
-                        ❌ Booking Not Found
-                    </h2>
-
-                    <p>
-                        ${escapeHTML(
-                            data.message ||
-                            "No booking was found."
-                        )}
-                    </p>
-
-                </div>
-
-            `;
-
+        if (list.length === 0) {
+            $("trip-list").innerHTML = `
+                <div class="sb-card sb-empty">
+                    <div class="sb-empty-icon">${filter === "upcoming" ? "🧳" : "🗂️"}</div>
+                    <h3>${filter === "upcoming" ? "No upcoming trips" : "Nothing here yet"}</h3>
+                    ${filter === "upcoming" ? `<p><a href="index.html">Search for a flight</a> to plan your next journey.</p>` : ""}
+                </div>`;
             return;
         }
 
+        $("trip-list").innerHTML = list.map(b => `
+            <button type="button" class="trip-card sb-card" data-booking="${b.bookingID}">
+                <div class="trip-date">
+                    <strong>${formatDate(b.travelDate, { day: "numeric" })}</strong>
+                    <span>${formatDate(b.travelDate, { month: "short", year: "numeric" })}</span>
+                </div>
+                <div class="trip-main">
+                    <strong>${escapeHTML(b.flight.source)} → ${escapeHTML(b.flight.destination)}</strong>
+                    <span>${escapeHTML(b.flight.flightNumber)} · ${formatTime(b.flight.departureTime)} · ${plural(b.passengerCount, "passenger")} · Seats ${escapeHTML(b.passengers.map(p => p.seatNumber).join(", "))}</span>
+                </div>
+                <div class="trip-side">
+                    ${badge(b.bookingStatus)}
+                    <strong>${formatMoney(b.totalFare)}</strong>
+                </div>
+            </button>`).join("");
+    }
 
-        /* =================================================
-           GET BOOKING
-        ================================================= */
+    function onTabClick(event) {
+        const tab = event.target.closest("[data-filter]");
+        if (!tab) return;
 
-        const booking =
-            data.booking;
+        filter = tab.dataset.filter;
+        document.querySelectorAll(".trip-tab").forEach(t => {
+            const active = t === tab;
+            t.classList.toggle("active", active);
+            t.setAttribute("aria-selected", String(active));
+        });
+        renderTrips();
+    }
+
+    function onTripClick(event) {
+        const card = event.target.closest("[data-booking]");
+        if (!card) return;
+
+        const booking = myBookings.find(b => String(b.bookingID) === card.dataset.booking);
+        if (booking) showBooking(booking, null);
+    }
 
 
-        if (
-            !booking ||
-            typeof booking !== "object"
-        ) {
+    /* =================================================
+       LOOK UP BY ID + EMAIL
+    ================================================= */
 
-            throw new Error(
-                "Booking data missing from server response."
+    async function onLookup(event) {
+        event?.preventDefault();
+
+        const id = $("booking-id").value.trim();
+        const email = $("lookup-email").value.trim();
+        const signedIn = !!session.user;
+
+        if (!/^\d+$/.test(id)) {
+            return SkyBook.alert("Booking ID needed", "Please enter the number from your confirmation (e.g. 12).", "🎫");
+        }
+        if (!signedIn && !EMAIL_RE.test(email)) {
+            return SkyBook.alert("Email needed", "Please enter the email address of a passenger on this booking.", "📧");
+        }
+
+        const button = $("lookup-button");
+        setBusy(button, true, "Searching…");
+
+        try {
+            const { booking } = await api(`/api/bookings/${id}`, { query: { email } });
+            showBooking(booking, email);
+        } catch (error) {
+            $("booking-detail").hidden = true;
+            SkyBook.alert(
+                "Booking not found",
+                error.status === 404
+                    ? "We couldn't find a booking with that ID and email. Please check both and try again."
+                    : error.message,
+                "🔎"
             );
+        } finally {
+            setBusy(button, false);
         }
-
-
-        console.log(
-            "🎫 Booking:",
-            booking
-        );
-
-
-        /* =================================================
-           NORMALIZE ARRAYS
-        ================================================= */
-
-        const passengers =
-            Array.isArray(
-                booking.passengers
-            )
-                ? booking.passengers
-                : [];
-
-
-        const tickets =
-            Array.isArray(
-                booking.tickets
-            )
-                ? booking.tickets
-                : [];
-
-
-        /* =================================================
-           DISPLAY BOOKING
-        ================================================= */
-
-        displayBooking(
-            booking,
-            passengers,
-            tickets,
-            resultBox
-        );
-
     }
 
 
     /* =================================================
-       CONNECTION ERROR
+       DETAIL + CANCEL
     ================================================= */
 
-    catch (error) {
+    function showBooking(booking, email) {
+        current = { booking, email };
 
-        console.error(
-            "❌ Booking lookup error:",
-            error
-        );
+        const footer = `
+            <button type="button" class="sb-btn sb-btn-secondary" data-action="print">🖨️ Print</button>
+            ${booking.canCancel
+                ? `<button type="button" class="sb-btn sb-btn-ghost-danger" data-action="cancel">Cancel booking</button>`
+                : ""}
+            <button type="button" class="sb-btn sb-btn-secondary" data-action="close">Close</button>`;
 
-
-        resultBox.innerHTML = `
-
-            <div class="error-message">
-
-                <h2>
-                    ⚠️ Server Error
-                </h2>
-
-                <p>
-                    Could not connect to SkyBook server.
-                </p>
-
-                <p>
-                    Make sure
-                    <strong>node server.js</strong>
-                    is running on port 3000.
-                </p>
-
-            </div>
-
-        `;
-
+        const detail = $("booking-detail");
+        detail.innerHTML = renderTicket(booking, { footer });
+        detail.hidden = false;
+        detail.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-}
-
-
-
-/* =====================================================
-   DISPLAY BOOKING
-===================================================== */
-
-function displayBooking(
-    booking,
-    passengers,
-    tickets,
-    resultBox
-) {
-
-
-    /* =================================================
-       BASIC BOOKING DATA
-    ================================================= */
-
-    const bookingID =
-        safeValue(
-            booking.bookingID,
-            "--"
-        );
-
-
-    const bookingStatus =
-        safeValue(
-            booking.bookingStatus,
-            "CONFIRMED"
-        );
-
-
-    const airlineName =
-        safeValue(
-            booking.airlineName,
-            "--"
-        );
-
-
-    const flightNumber =
-        safeValue(
-            booking.flightNumber,
-            "--"
-        );
-
-
-    const source =
-        safeValue(
-            booking.source,
-            "--"
-        );
-
-
-    const destination =
-        safeValue(
-            booking.destination,
-            "--"
-        );
-
-
-    const duration =
-        safeValue(
-            booking.duration,
-            "--"
-        );
-
-
-    const departureTime =
-        formatTime(
-            booking.departureTime
-        );
-
-
-    const arrivalTime =
-        formatTime(
-            booking.arrivalTime
-        );
-
-
-    const totalFare =
-        formatFare(
-            booking.totalFare
-        );
-
-
-    /* =================================================
-       PASSENGER COUNT
-    ================================================= */
-
-    const passengerCount =
-        Number(
-            booking.passengerCount
-        ) || passengers.length || 1;
-
-
-    /* =================================================
-       PASSENGER HTML
-    ================================================= */
-
-    let passengerHTML = "";
-
-
-    if (
-        passengers.length > 0
-    ) {
-
-        passengerHTML =
-            passengers
-                .map(
-                    function(passenger, index) {
-
-                        const passengerName =
-                            safeValue(
-                                passenger.name,
-                                `${safeValue(
-                                    passenger.firstName,
-                                    ""
-                                )} ${safeValue(
-                                    passenger.lastName,
-                                    ""
-                                )}`.trim() || "--"
-                            );
-
-
-                        const email =
-                            safeValue(
-                                passenger.email,
-                                "--"
-                            );
-
-
-                        const phone =
-                            safeValue(
-                                passenger.phone,
-                                "--"
-                            );
-
-
-                        return `
-
-                            <div class="passenger-card"
-                                 style="
-                                    display: block;
-                                    margin-bottom: 18px;
-                                 ">
-
-                                <div class="section-title"
-                                     style="margin-bottom: 15px;">
-
-                                    👤 Passenger
-                                    ${index + 1}
-
-                                </div>
-
-
-                                <div class="passenger-info">
-
-
-                                    <div class="info-box">
-
-                                        <div class="info-label">
-
-                                            Name
-
-                                        </div>
-
-                                        <div class="info-value">
-
-                                            ${escapeHTML(
-                                                passengerName
-                                            )}
-
-                                        </div>
-
-                                    </div>
-
-
-
-                                    <div class="info-box">
-
-                                        <div class="info-label">
-
-                                            Email
-
-                                        </div>
-
-                                        <div class="info-value">
-
-                                            ${escapeHTML(
-                                                email
-                                            )}
-
-                                        </div>
-
-                                    </div>
-
-
-
-                                    <div class="info-box">
-
-                                        <div class="info-label">
-
-                                            Phone
-
-                                        </div>
-
-                                        <div class="info-value">
-
-                                            ${escapeHTML(
-                                                phone
-                                            )}
-
-                                        </div>
-
-                                    </div>
-
-
-                                </div>
-
-                            </div>
-
-                        `;
-
-                    }
-                )
-                .join("");
-
-    }
-
-
-    /* =================================================
-       FALLBACK IF PASSENGER ARRAY IS EMPTY
-    ================================================= */
-
-    else {
-
-        const passengerName =
-            `${safeValue(
-                booking.firstName,
-                ""
-            )} ${safeValue(
-                booking.lastName,
-                ""
-            )}`.trim()
-            || "--";
-
-
-        passengerHTML = `
-
-            <div class="passenger-card"
-                 style="
-                    display: block;
-                    margin-bottom: 18px;
-                 ">
-
-                <div class="section-title">
-
-                    👤 Passenger Details
-
-                </div>
-
-
-                <div class="passenger-info">
-
-
-                    <div class="info-box">
-
-                        <div class="info-label">
-
-                            Name
-
-                        </div>
-
-                        <div class="info-value">
-
-                            ${escapeHTML(
-                                passengerName
-                            )}
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="info-box">
-
-                        <div class="info-label">
-
-                            Email
-
-                        </div>
-
-                        <div class="info-value">
-
-                            ${escapeHTML(
-                                booking.email
-                            )}
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="info-box">
-
-                        <div class="info-label">
-
-                            Phone
-
-                        </div>
-
-                        <div class="info-value">
-
-                            ${escapeHTML(
-                                booking.phone
-                            )}
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-            </div>
-
-        `;
-
-    }
-
-
-
-    /* =================================================
-       TICKET HTML
-    ================================================= */
-
-    let ticketHTML = "";
-
-
-    if (
-        tickets.length > 0
-    ) {
-
-        ticketHTML =
-            tickets
-                .map(
-                    function(ticket, index) {
-
-                        return `
-
-                            <div class="ticket-box">
-
-                                <div class="ticket-label">
-
-                                    Passenger ${index + 1}
-
-                                </div>
-
-                                <div class="ticket-value">
-
-                                    ${escapeHTML(
-                                        ticket.seatNumber ||
-                                        "--"
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        `;
-
-                    }
-                )
-                .join("");
-
-    }
-
-
-    /* =================================================
-       IF NO TICKETS
-    ================================================= */
-
-    if (
-        tickets.length === 0
-    ) {
-
-        ticketHTML = `
-
-            <div class="ticket-box">
-
-                <div class="ticket-label">
-
-                    Ticket ID
-
-                </div>
-
-                <div class="ticket-value">
-
-                    ${escapeHTML(
-                        booking.ticketID ||
-                        "--"
-                    )}
-
-                </div>
-
-            </div>
-
-
-
-            <div class="ticket-box">
-
-                <div class="ticket-label">
-
-                    Seat
-
-                </div>
-
-                <div class="ticket-value">
-
-                    ${escapeHTML(
-                        booking.seatNumber ||
-                        "--"
-                    )}
-
-                </div>
-
-            </div>
-
-
-
-            <div class="ticket-box">
-
-                <div class="ticket-label">
-
-                    Class
-
-                </div>
-
-                <div class="ticket-value">
-
-                    ${escapeHTML(
-                        booking.ticketClass ||
-                        "--"
-                    )}
-
-                </div>
-
-            </div>
-
-
-
-            <div class="ticket-box">
-
-                <div class="ticket-label">
-
-                    Payment
-
-                </div>
-
-                <div class="ticket-value">
-
-                    ${escapeHTML(
-                        booking.paymentMode ||
-                        "--"
-                    )}
-
-                </div>
-
-            </div>
-
-        `;
-
-    }
-
-
-
-    /* =================================================
-       BOOKING DISPLAY
-    ================================================= */
-
-    resultBox.innerHTML = `
-
-        <div class="booking-card">
-
-
-            <!-- =================================================
-                 BOOKING HEADER
-            ================================================= -->
-
-            <div class="booking-header">
-
-                <h2>
-
-                    🎫 Booking
-                    #${escapeHTML(
-                        bookingID
-                    )}
-
-                </h2>
-
-
-                <div class="booking-status">
-
-                    ✅
-                    ${escapeHTML(
-                        bookingStatus
-                    )}
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =================================================
-                 BOOKING BODY
-            ================================================= -->
-
-            <div class="booking-body">
-
-
-                <!-- =================================================
-                     PASSENGER DETAILS
-                ================================================= -->
-
-                <div class="passenger-section">
-
-                    <div class="section-title">
-
-                        👥 Passenger Details
-
-                        <span
-                            style="
-                                font-size: 14px;
-                                color: #777;
-                                margin-left: 8px;
-                            "
-                        >
-                            (${passengerCount}
-                            ${passengerCount === 1
-                                ? "Passenger"
-                                : "Passengers"})
-                        </span>
-
-                    </div>
-
-
-                    ${passengerHTML}
-
-                </div>
-
-
-
-                <!-- =================================================
-                     FLIGHT
-                ================================================= -->
-
-                <div class="flight-section">
-
-
-                    <div class="flight-airline">
-
-                        ✈️
-
-                        ${escapeHTML(
-                            airlineName
-                        )}
-
-                        &nbsp;
-
-                        (${escapeHTML(
-                            flightNumber
-                        )})
-
-                    </div>
-
-
-
-                    <div class="flight-route">
-
-
-                        <!-- DEPARTURE -->
-
-                        <div>
-
-                            <div class="airport-time">
-
-                                ${escapeHTML(
-                                    departureTime
-                                )}
-
-                            </div>
-
-                            <div class="airport-name">
-
-                                ${escapeHTML(
-                                    source
-                                )}
-
-                            </div>
-
-                        </div>
-
-
-
-                        <!-- MIDDLE -->
-
-                        <div class="flight-middle">
-
-                            <div>
-
-                                ${escapeHTML(
-                                    duration
-                                )}
-
-                            </div>
-
-
-                            <div class="flight-line">
-
-                            </div>
-
-
-                            <div>
-
-                                Direct
-
-                            </div>
-
-                        </div>
-
-
-
-                        <!-- ARRIVAL -->
-
-                        <div>
-
-                            <div class="airport-time">
-
-                                ${escapeHTML(
-                                    arrivalTime
-                                )}
-
-                            </div>
-
-                            <div class="airport-name">
-
-                                ${escapeHTML(
-                                    destination
-                                )}
-
-                            </div>
-
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- =================================================
-                     TICKET DETAILS
-                ================================================= -->
-
-                <div class="ticket-section">
-
-
-                    <div class="section-title">
-
-                        🎫 Ticket Details
-
-                    </div>
-
-
-                    <div class="ticket-details">
-
-                        ${ticketHTML}
-
-                    </div>
-
-
-                    <!-- FULL TICKET LIST -->
-
-                    ${
-                        tickets.length > 0
-                            ? tickets.map(
-                                function(ticket, index) {
-
-                                    return `
-
-                                        <div
-                                            style="
-                                                margin-top: 12px;
-                                                padding: 12px 15px;
-                                                background: #f4f8fc;
-                                                border-radius: 10px;
-                                                display: flex;
-                                                justify-content: space-between;
-                                                align-items: center;
-                                                gap: 15px;
-                                                flex-wrap: wrap;
-                                            "
-                                        >
-
-                                            <strong>
-
-                                                Passenger
-                                                ${index + 1}
-
-                                            </strong>
-
-
-                                            <span>
-
-                                                Ticket ID:
-                                                <strong>
-                                                    ${escapeHTML(
-                                                        ticket.ticketID ||
-                                                        "--"
-                                                    )}
-                                                </strong>
-
-                                            </span>
-
-
-                                            <span>
-
-                                                Seat:
-                                                <strong>
-                                                    ${escapeHTML(
-                                                        ticket.seatNumber ||
-                                                        "--"
-                                                    )}
-                                                </strong>
-
-                                            </span>
-
-
-                                            <span>
-
-                                                Class:
-                                                <strong>
-                                                    ${escapeHTML(
-                                                        ticket.ticketClass ||
-                                                        "--"
-                                                    )}
-                                                </strong>
-
-                                            </span>
-
-
-                                            <span>
-
-                                                Status:
-                                                <strong>
-                                                    ${escapeHTML(
-                                                        ticket.ticketStatus ||
-                                                        "--"
-                                                    )}
-                                                </strong>
-
-                                            </span>
-
-                                        </div>
-
-                                    `;
-
-                                }
-                            ).join("")
-                            : ""
-                    }
-
-                </div>
-
-
-
-                <!-- =================================================
-                     PAYMENT
-                ================================================= -->
-
-                <div class="payment-section">
-
-
-                    <div>
-
-                        <div class="payment-success">
-
-                            ${
-                                String(
-                                    booking.paymentStatus ||
-                                    ""
-                                ).toUpperCase() ===
-                                "PAID"
-                                    ? "✅ Payment Successful"
-                                    : "💳 Payment"
-                            }
-
-                        </div>
-
-
-                        <div>
-
-                            Payment ID:
-
-                            ${escapeHTML(
-                                booking.paymentID ||
-                                "--"
-                            )}
-
-                        </div>
-
-
-                        <div
-                            style="
-                                margin-top: 4px;
-                                color: #777;
-                                font-size: 13px;
-                            "
-                        >
-
-                            Mode:
-
-                            ${escapeHTML(
-                                booking.paymentMode ||
-                                "--"
-                            )}
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="total-fare">
-
-                        ₹${totalFare}
-
-                    </div>
-
-
-                </div>
-
-
-            </div>
-
-
-        </div>
-
-    `;
-
-}
-
-
-
-/* =====================================================
-   SAFE VALUE
-===================================================== */
-
-function safeValue(
-    value,
-    fallback = "--"
-) {
-
-    if (
-        value === undefined ||
-        value === null ||
-        String(value).trim() === ""
-    ) {
-
-        return fallback;
-    }
-
-
-    return value;
-}
-
-
-
-/* =====================================================
-   FORMAT FARE
-===================================================== */
-
-function formatFare(
-    amount
-) {
-
-    const number =
-        Number(amount);
-
-
-    if (
-        !Number.isFinite(number)
-    ) {
-
-        return "0.00";
-    }
-
-
-    return number.toLocaleString(
-        "en-IN",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+    async function onDetailClick(event) {
+        const action = event.target.closest("[data-action]")?.dataset.action;
+        if (!action || !current) return;
+
+        if (action === "print") {
+            window.print();
+        } else if (action === "close") {
+            $("booking-detail").hidden = true;
+            current = null;
+        } else if (action === "cancel") {
+            await cancelBooking(event.target.closest("button"));
         }
-    );
-}
-
-
-
-/* =====================================================
-   FORMAT TIME
-===================================================== */
-
-function formatTime(
-    time
-) {
-
-    if (
-        !time
-    ) {
-
-        return "--";
     }
 
+    async function cancelBooking(button) {
+        const { booking, email } = current;
 
-    const value =
-        String(time);
-
-
-    /*
-       MySQL TIME:
-       10:30:00
-
-       → 10:30
-    */
-
-    if (
-        /^\d{2}:\d{2}/.test(
-            value
-        )
-    ) {
-
-        return value.substring(
-            0,
-            5
+        const ok = await SkyBook.confirm(
+            `Cancel booking #${booking.bookingID}?`,
+            `${plural(booking.passengerCount, "seat")} on ${booking.flight.flightNumber} (${formatDate(booking.travelDate)}) will be released and ${formatMoney(booking.totalFare)} marked for refund. This can't be undone.`,
+            { confirmLabel: "Yes, cancel it", cancelLabel: "Keep booking", icon: "⚠️", danger: true }
         );
-    }
+        if (!ok) return;
 
+        setBusy(button, true, "Cancelling…");
 
-    /*
-       ISO date/time fallback
-    */
+        try {
+            const result = await api(`/api/bookings/${booking.bookingID}/cancel`, {
+                method: "POST",
+                body: { email: email || "" }
+            });
 
-    if (
-        value.includes("T")
-    ) {
+            toast(result.message, "success");
+            showBooking(result.booking, email);
 
-        const date =
-            new Date(value);
-
-
-        if (
-            !Number.isNaN(
-                date.getTime()
-            )
-        ) {
-
-            return date.toLocaleTimeString(
-                "en-IN",
-                {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false
-                }
-            );
-
-        }
-
-    }
-
-
-    return value;
-}
-
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(
-    value
-) {
-
-    if (
-        value === undefined ||
-        value === null
-    ) {
-
-        return "--";
-    }
-
-
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-}
-
-
-
-/* =====================================================
-   ENTER KEY SUPPORT
-===================================================== */
-
-const bookingInput =
-    document.getElementById(
-        "booking-id"
-    );
-
-
-if (
-    bookingInput
-) {
-
-    bookingInput.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (
-                event.key === "Enter"
-            ) {
-
-                event.preventDefault();
-
-                findBooking();
-
+            const index = myBookings.findIndex(b => b.bookingID === booking.bookingID);
+            if (index !== -1) {
+                myBookings[index] = result.booking;
+                renderTrips();
             }
-
+        } catch (error) {
+            setBusy(button, false);
+            SkyBook.alert("Couldn't cancel", error.message, "❌");
         }
-    );
+    }
 
-}
+
+    /* =================================================
+       START
+    ================================================= */
+
+    function init() {
+        $("lookup-form").addEventListener("submit", onLookup);
+        $("booking-id").addEventListener("input", e => {
+            e.target.value = e.target.value.replace(/\D/g, "");
+        });
+        document.querySelector(".trip-tabs").addEventListener("click", onTabClick);
+        $("trip-list").addEventListener("click", onTripClick);
+        $("booking-detail").addEventListener("click", onDetailClick);
+
+        loadMyTrips();
+
+        // Links from the confirmation page: my-bookings.html?id=12&email=...
+        const params = new URLSearchParams(location.search);
+        if (params.get("id")) {
+            $("booking-id").value = params.get("id");
+            $("lookup-email").value = params.get("email") || "";
+            onLookup();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+})();

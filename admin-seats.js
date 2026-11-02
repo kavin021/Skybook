@@ -1,760 +1,192 @@
 /* =====================================================
-   SKYBOOK - ADMIN SEAT MANAGEMENT
+   SKYBOOK — ADMIN SEAT MANAGEMENT
+   Blocks are per flight (all dates). Bookings are shown
+   for the chosen date.
 ===================================================== */
 
+(function () {
+    "use strict";
 
-/* =====================================================
-   ELEMENTS
-===================================================== */
+    const { api, escapeHTML, today, addDays, toast } = SkyBook;
 
-const flightSelect =
-    document.getElementById("flightSelect");
+    const $ = id => document.getElementById(id);
+    const SEAT_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
-const flightInfo =
-    document.getElementById("flightInfo");
+    let flights = [];
+    let seats = [];
+    let busy = false;
 
-const seatSection =
-    document.getElementById("seatSection");
-
-const seatMap =
-    document.getElementById("seatMap");
-
-const loading =
-    document.getElementById("loading");
-
-const dashboardBtn =
-    document.getElementById("dashboardBtn");
-
-const logoutBtn =
-    document.getElementById("logoutBtn");
-
-const alertBox =
-    document.getElementById("alertBox");
-
-const alertMessage =
-    document.getElementById("alertMessage");
-
-const alertClose =
-    document.getElementById("alertClose");
-
-
-/* =====================================================
-   CUSTOM ALERT
-===================================================== */
-
-function showAlert(message) {
-
-    alertMessage.textContent = message;
-
-    alertBox.classList.remove("hidden");
-
-    setTimeout(() => {
-
-        alertBox.classList.add("hidden");
-
-    }, 3000);
-}
-
-
-/* CLOSE ALERT */
-
-if (alertClose) {
-
-    alertClose.addEventListener(
-        "click",
-        () => {
-
-            alertBox.classList.add("hidden");
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   DASHBOARD BUTTON
-===================================================== */
-
-if (dashboardBtn) {
-
-    dashboardBtn.addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "admin-dashboard.html";
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-if (logoutBtn) {
-
-    logoutBtn.addEventListener(
-        "click",
-        () => {
-
-            localStorage.removeItem(
-                "skybookUser"
-            );
-
-            window.location.href =
-                "login.html";
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   LOAD FLIGHTS
-===================================================== */
-
-async function loadFlights() {
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/admin/flights"
-            );
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Failed to load flights."
-            );
-
-        }
-
-
-        /* Clear existing options */
-
-        flightSelect.innerHTML = `
-            <option value="">
-                -- Select a Flight --
-            </option>
-        `;
-
-
-        /* Add flights */
-
-        data.forEach(flight => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                flight.FlightID;
-
-            option.textContent =
-                `${flight.FlightNumber} - ${flight.Source} → ${flight.Destination}`;
-
-            option.dataset.flight =
-                JSON.stringify(flight);
-
-            flightSelect.appendChild(
-                option
-            );
-
-        });
-
+    function currentFlight() {
+        return flights.find(f => String(f.FlightID) === $("flight-select").value) || null;
     }
 
-    catch (error) {
-
-        console.error(
-            "Flight loading error:",
-            error
-        );
-
-        showAlert(
-            error.message ||
-            "Unable to load flights."
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   FLIGHT SELECTION
-===================================================== */
-
-flightSelect.addEventListener(
-    "change",
-    async () => {
-
-        const flightID =
-            flightSelect.value;
-
-
-        /* No flight selected */
-
-        if (!flightID) {
-
-            flightInfo.classList.add(
-                "hidden"
-            );
-
-            seatSection.classList.add(
-                "hidden"
-            );
-
-            seatMap.innerHTML = "";
-
-            return;
-
-        }
-
-
-        /* Get selected flight */
-
-        const selectedOption =
-            flightSelect.options[
-                flightSelect.selectedIndex
-            ];
-
-
-        const flight =
-            JSON.parse(
-                selectedOption.dataset.flight
-            );
-
-
-        /* Flight number */
-
-        document.getElementById(
-            "flightNumber"
-        ).textContent =
-            flight.FlightNumber;
-
-
-        /* Route */
-
-        document.getElementById(
-            "flightRoute"
-        ).textContent =
-            `${flight.Source} → ${flight.Destination}`;
-
-
-        /* Aircraft */
-
-        document.getElementById(
-            "aircraftInfo"
-        ).textContent =
-            `Aircraft ${flight.AircraftID}`;
-
-
-        /* Show flight information */
-
-        flightInfo.classList.remove(
-            "hidden"
-        );
-
-
-        /* Load seats */
-
-        await loadSeats(
-            flightID
-        );
-
-    }
-);
-
-
-/* =====================================================
-   LOAD SEATS
-===================================================== */
-
-async function loadSeats(flightID) {
-
-    loading.classList.remove(
-        "hidden"
-    );
-
-    seatSection.classList.add(
-        "hidden"
-    );
-
-    seatMap.innerHTML = "";
-
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/admin/seats/${flightID}`
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Failed to load seats."
-            );
-
-        }
-
-
-        if (
-            !data.seats ||
-            data.seats.length === 0
-        ) {
-
-            showAlert(
-                "No seats found for this flight."
-            );
-
-            return;
-
-        }
-
-
-        /* Display capacity */
-
-        document.getElementById(
-            "capacityInfo"
-        ).textContent =
-            data.seats.length;
-
-
-        /* Create seat map */
-
-        renderSeats(
-            data.seats
-        );
-
-
-        seatSection.classList.remove(
-            "hidden"
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Seat loading error:",
-            error
-        );
-
-        showAlert(
-            error.message ||
-            "Unable to load seats."
-        );
-
-    }
-
-    finally {
-
-        loading.classList.add(
-            "hidden"
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   RENDER SEATS
-===================================================== */
-
-function renderSeats(seats) {
-
-    seatMap.innerHTML = "";
-
-
-    /* Group seats according to row */
-
-    const rows = {};
-
-
-    seats.forEach(seat => {
-
-        const match =
-            seat.SeatNumber.match(
-                /^(\d+)([A-F])$/
-            );
-
-
-        if (!match) {
+    function handleError(error) {
+        if (error.status === 401 || error.status === 403) {
+            SkyBook.requireAdmin();
             return;
         }
+        toast(error.message, "error");
+    }
 
 
-        const rowNumber =
-            Number(match[1]);
+    /* =================================================
+       FLIGHTS
+    ================================================= */
+
+    async function loadFlights() {
+        try {
+            ({ flights } = await api("/api/admin/flights"));
+
+            $("flight-select").innerHTML =
+                `<option value="">Select a flight…</option>` +
+                flights.map(f => `
+                    <option value="${f.FlightID}">
+                        ${escapeHTML(f.FlightNumber)} · ${escapeHTML(f.Source)} → ${escapeHTML(f.Destination)} · ${f.DepartureTime}${f.Status !== "Available" ? ` (${escapeHTML(f.Status)})` : ""}
+                    </option>`).join("");
+
+            // admin-seats.html?flight=3 (from the dashboard "Seats" button)
+            const wanted = new URLSearchParams(location.search).get("flight");
+            if (wanted && flights.some(f => String(f.FlightID) === wanted)) {
+                $("flight-select").value = wanted;
+                await loadSeats();
+            }
+        } catch (error) {
+            $("flight-select").innerHTML = `<option value="">Couldn't load flights</option>`;
+            handleError(error);
+        }
+    }
 
 
-        if (!rows[rowNumber]) {
+    /* =================================================
+       SEATS
+    ================================================= */
 
-            rows[rowNumber] = [];
+    async function loadSeats() {
+        const flight = currentFlight();
 
+        $("flight-info").hidden = !flight;
+        $("seat-section").hidden = !flight;
+        $("seat-placeholder").hidden = !!flight;
+
+        if (!flight) return;
+
+        // Keep the URL in sync so a refresh stays on this flight.
+        history.replaceState(null, "", `?flight=${flight.FlightID}`);
+
+        $("info-flight").textContent = flight.FlightNumber;
+        $("info-route").textContent = `${flight.Source} → ${flight.Destination}`;
+        $("info-aircraft").textContent = `${flight.AircraftName} ${flight.AircraftModel}`;
+        $("seat-map").innerHTML = `<div class="sb-loading">Loading seats…</div>`;
+
+        try {
+            ({ seats } = await api(`/api/admin/flights/${flight.FlightID}/seats`, {
+                query: { date: $("seat-date").value }
+            }));
+            renderSeats();
+        } catch (error) {
+            $("seat-map").innerHTML = `<div class="sb-empty"><h3>Couldn't load seats</h3><p>${escapeHTML(error.message)}</p></div>`;
+            handleError(error);
+        }
+    }
+
+    function renderSeats() {
+        const count = status => seats.filter(s => s.CurrentStatus === status).length;
+        $("info-available").textContent = count("Available");
+        $("info-booked").textContent = count("Booked");
+        $("info-blocked").textContent = count("Blocked");
+
+        const rows = new Map();
+        for (const seat of seats) {
+            const match = /^(\d+)([A-F])$/.exec(seat.SeatNumber);
+            if (!match) continue;
+            const row = Number(match[1]);
+            if (!rows.has(row)) rows.set(row, {});
+            rows.get(row)[match[2]] = seat;
         }
 
-
-        rows[rowNumber].push(
-            seat
-        );
-
-    });
-
-
-    /* Sort rows */
-
-    const rowNumbers =
-        Object.keys(rows).sort(
-            (a, b) =>
-                Number(a) - Number(b)
-        );
-
-
-    /* Create every row */
-
-    rowNumbers.forEach(
-        rowNumber => {
-
-            const row =
-                document.createElement(
-                    "div"
-                );
-
-            row.className =
-                "seat-row";
-
-
-            const rowSeats =
-                rows[rowNumber];
-
-
-            const seatLetters =
-                [
-                    "A",
-                    "B",
-                    "C",
-                    "D",
-                    "E",
-                    "F"
-                ];
-
-
-            seatLetters.forEach(
-                letter => {
-
-                    const seat =
-                        rowSeats.find(
-                            item =>
-                                item.SeatNumber ===
-                                `${rowNumber}${letter}`
-                        );
-
-
-                    /* Empty seat space */
-
-                    if (!seat) {
-
-                        const empty =
-                            document.createElement(
-                                "div"
-                            );
-
-                        row.appendChild(
-                            empty
-                        );
-
-                        return;
-
-                    }
-
-
-                    /* Create seat button */
-
-                    const button =
-                        document.createElement(
-                            "button"
-                        );
-
-
-                    button.className =
-                        "seat";
-
-
-                    const status =
-                        seat.CurrentStatus;
-
-
-                    /* -----------------------------
-                       AVAILABLE
-                    ----------------------------- */
-
-                    if (
-                        status ===
-                        "Available"
-                    ) {
-
-                        button.classList.add(
-                            "available"
-                        );
-
-                    }
-
-
-                    /* -----------------------------
-                       BLOCKED
-                    ----------------------------- */
-
-                    else if (
-                        status ===
-                        "Blocked"
-                    ) {
-
-                        button.classList.add(
-                            "blocked"
-                        );
-
-                    }
-
-
-                    /* -----------------------------
-                       BOOKED
-                    ----------------------------- */
-
-                    else if (
-                        status ===
-                        "Booked"
-                    ) {
-
-                        button.classList.add(
-                            "booked"
-                        );
-
-                    }
-
-
-                    button.textContent =
-                        seat.SeatNumber;
-
-
-                    button.title =
-                        `${seat.SeatNumber} - ${status}`;
-
-
-                    /*
-                       Booked seats cannot
-                       be changed.
-                    */
-
-                    if (
-                        status !==
-                        "Booked"
-                    ) {
-
-                        button.addEventListener(
-                            "click",
-                            () => {
-
-                                toggleSeat(
-                                    seat
-                                );
-
-                            }
-                        );
-
-                    }
-
-
-                    row.appendChild(
-                        button
-                    );
-
-
-                    /* Add aisle after C */
-
-                    if (
-                        letter === "C"
-                    ) {
-
-                        const aisle =
-                            document.createElement(
-                                "div"
-                            );
-
-                        aisle.className =
-                            "aisle";
-
-                        row.appendChild(
-                            aisle
-                        );
-
-                    }
-
+        $("seat-map").innerHTML = [...rows.keys()].sort((a, b) => a - b).map(rowNumber => {
+            const row = rows.get(rowNumber);
+
+            const cells = SEAT_LETTERS.map(letter => {
+                const seat = row[letter];
+                let cell;
+
+                if (!seat) {
+                    cell = `<span class="seat-empty"></span>`;
+                } else {
+                    const maintenance = seat.BlockScope === "aircraft";
+                    const css = maintenance ? "maintenance" : seat.CurrentStatus.toLowerCase();
+                    const locked = seat.CurrentStatus === "Booked" || maintenance;
+                    const title = maintenance
+                        ? "Out of service for the whole aircraft"
+                        : seat.CurrentStatus === "Booked"
+                            ? "Booked on the selected date"
+                            : seat.CurrentStatus === "Blocked" ? "Blocked — click to release" : "Available — click to block";
+
+                    cell = `
+                        <button type="button" class="seat ${css}" data-seat-id="${seat.SeatID}"
+                                title="${seat.SeatNumber}: ${title}" aria-label="Seat ${seat.SeatNumber}, ${title}"
+                                ${locked ? "disabled" : ""}>${letter}</button>`;
                 }
-            );
 
+                return letter === "C" ? cell + `<span class="aisle">${rowNumber}</span>` : cell;
+            }).join("");
 
-            seatMap.appendChild(
-                row
-            );
+            return `<div class="seat-row">${cells}</div>`;
+        }).join("");
+    }
 
+    async function onSeatClick(event) {
+        const button = event.target.closest("[data-seat-id]");
+        if (!button || button.disabled || busy) return;
+
+        const flight = currentFlight();
+        const seat = seats.find(s => String(s.SeatID) === button.dataset.seatId);
+        if (!flight || !seat) return;
+
+        const block = seat.CurrentStatus === "Available";
+
+        busy = true;
+        button.disabled = true;
+
+        try {
+            const result = await api(`/api/admin/flights/${flight.FlightID}/seats/${seat.SeatID}`, {
+                method: "PUT",
+                body: { blocked: block }
+            });
+            toast(result.message, "success");
+
+            // Update locally instead of reloading the whole map.
+            seat.CurrentStatus = block ? "Blocked" : "Available";
+            seat.BlockScope = block ? "flight" : null;
+            renderSeats();
+        } catch (error) {
+            button.disabled = false;
+            handleError(error);
+        } finally {
+            busy = false;
         }
-    );
-
-}
-
-
-/* =====================================================
-   BLOCK / UNBLOCK SEAT
-===================================================== */
-
-async function toggleSeat(seat) {
-
-    let newStatus;
-
-
-    /* Available → Blocked */
-
-    if (
-        seat.CurrentStatus ===
-        "Available"
-    ) {
-
-        newStatus =
-            "Blocked";
-
     }
 
 
-    /* Blocked → Available */
+    /* =================================================
+       START
+    ================================================= */
 
-    else if (
-        seat.CurrentStatus ===
-        "Blocked"
-    ) {
+    function init() {
+        if (!SkyBook.session.isAdmin()) return;
 
-        newStatus =
-            "Available";
+        const date = $("seat-date");
+        date.value = today();
+        date.min = addDays(today(), -365);
+        date.max = addDays(today(), 365);
 
-    }
-
-
-    /* Booked → Cannot change */
-
-    else {
-
-        showAlert(
-            "Booked seats cannot be changed."
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/admin/seats/${seat.SeatID}`,
-                {
-
-                    method: "PUT",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        SeatStatus:
-                            newStatus
-
-                    })
-
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        /* API error */
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Failed to update seat."
-            );
-
-        }
-
-
-        /* Custom SkyBook notification */
-
-        showAlert(
-            data.message
-        );
-
-
-        /* Reload seat map */
-
-        await loadSeats(
-            flightSelect.value
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Seat update error:",
-            error
-        );
-
-        showAlert(
-            error.message ||
-            "Unable to update seat."
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   INITIALIZE
-===================================================== */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+        $("flight-select").addEventListener("change", loadSeats);
+        date.addEventListener("change", loadSeats);
+        $("seat-map").addEventListener("click", onSeatClick);
 
         loadFlights();
-
     }
-);
+
+    document.addEventListener("DOMContentLoaded", init);
+})();

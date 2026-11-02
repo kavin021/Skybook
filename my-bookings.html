@@ -1,123 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        SkyBook - My Bookings
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="my-bookings.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyBook - My Bookings</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="ticket.css">
+    <link rel="stylesheet" href="my-bookings.css">
 </head>
-
-
 <body>
 
-
-    <!-- =========================
-         HEADER
-    ========================== -->
-
-    <header>
-
-        <div class="logo">
-
-            ✈️ SkyBook
-
-        </div>
-
-
-        <nav>
-
-            <a href="index.html">
-                Home
-            </a>
-
-            <a href="index.html#flight-results">
-                Flights
-            </a>
-
-            <a
-                href="my-bookings.html"
-                class="active"
-            >
-                My Bookings
-            </a>
-
+    <header class="sb-nav">
+        <a href="index.html" class="sb-logo">✈️ SkyBook</a>
+        <nav class="sb-nav-links" data-nav-links aria-label="Main">
+            <a href="index.html">Home</a>
+            <a href="my-bookings.html">My Bookings</a>
         </nav>
-
     </header>
 
+    <main class="sb-page bookings-page">
+
+        <section class="page-intro">
+            <h1>My Bookings</h1>
+            <p id="intro-text">Find a booking with its ID and the email of any passenger on it.</p>
+        </section>
 
 
-    <!-- =========================
-         MAIN
-    ========================== -->
-
-    <main>
-
-
-        <section class="booking-search">
-
-            <h1>
-                ✈️ My Bookings
-            </h1>
-
-            <p>
-                Enter your Booking ID to view your reservation.
-            </p>
-
-
-            <div class="search-box">
-
-                <input
-                    type="number"
-                    id="booking-id"
-                    placeholder="Enter Booking ID"
-                    min="1"
-                >
-
-
-                <button onclick="findBooking()">
-
-                    Search Booking
-
-                </button>
-
+        <!-- ============ LOGGED-IN USER'S TRIPS ============ -->
+        <section id="my-trips" class="trips" hidden>
+            <div class="sb-section-head">
+                <h2>Your trips</h2>
+                <div class="trip-tabs" role="tablist" aria-label="Filter trips">
+                    <button type="button" role="tab" class="trip-tab active" data-filter="upcoming" aria-selected="true">Upcoming</button>
+                    <button type="button" role="tab" class="trip-tab" data-filter="past" aria-selected="false">Past &amp; cancelled</button>
+                </div>
             </div>
-
+            <div id="trip-list" class="trip-list" aria-live="polite"></div>
         </section>
 
 
-
-        <!-- =========================
-             RESULT
-        ========================== -->
-
-        <section
-            id="booking-result"
-            class="booking-result"
-        >
-
+        <!-- ============ LOOK UP BY ID ============ -->
+        <section class="lookup sb-card" id="lookup-section">
+            <h2 id="lookup-title">Find a booking</h2>
+            <form id="lookup-form" class="lookup-form" novalidate>
+                <div class="sb-field">
+                    <label for="booking-id">Booking ID</label>
+                    <input id="booking-id" inputmode="numeric" placeholder="e.g. 12" autocomplete="off" maxlength="10">
+                </div>
+                <div class="sb-field">
+                    <label for="lookup-email">Passenger email</label>
+                    <input id="lookup-email" type="email" placeholder="Email used on the booking" autocomplete="email" maxlength="100">
+                </div>
+                <button type="submit" id="lookup-button" class="sb-btn sb-btn-primary">Find booking</button>
+            </form>
         </section>
 
+
+        <!-- ============ BOOKING DETAIL ============ -->
+        <section id="booking-detail" class="booking-detail" hidden aria-live="polite"></section>
 
     </main>
 
-
+    <script src="common.js"></script>
+    <script src="ticket.js"></script>
     <script src="my-bookings.js"></script>
-
 </body>
-
 </html>

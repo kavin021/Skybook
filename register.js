@@ -1,505 +1,102 @@
 /* =====================================================
-   SKYBOOK - USER REGISTRATION
-   FRONTEND: LIVE SERVER
-   BACKEND: NODE.JS ON PORT 3000
+   SKYBOOK — CREATE ACCOUNT
 ===================================================== */
 
-const API_BASE_URL =
-    "http://localhost:3000";
+(function () {
+    "use strict";
 
+    const { api, session, setBusy, EMAIL_RE, PHONE_RE } = SkyBook;
 
-/* =====================================================
-   GET FORM
-===================================================== */
+    const $ = id => document.getElementById(id);
 
-const registerForm =
-    document.getElementById(
-        "register-form"
-    );
+    function setError(id, message) {
+        $(id).closest(".sb-field").classList.toggle("invalid", !!message);
+        $(id).setAttribute("aria-invalid", message ? "true" : "false");
+        $(id + "-error").textContent = message;
+    }
 
+    function validate() {
+        const values = {
+            name: $("name").value.trim().replace(/\s+/g, " "),
+            email: $("email").value.trim(),
+            phone: $("phone").value.trim(),
+            password: $("password").value,
+            confirm: $("confirm-password").value
+        };
 
-/* =====================================================
-   SHOW / HIDE PASSWORD
-===================================================== */
+        const errors = {
+            name: values.name.length >= 2 ? "" : "Please enter your full name.",
+            email: EMAIL_RE.test(values.email) ? "" : "Please enter a valid email address.",
+            phone: !values.phone || PHONE_RE.test(values.phone) ? "" : "Phone must be 10 digits.",
+            password: values.password.length >= 6 ? "" : "Use at least 6 characters.",
+            "confirm-password": values.confirm === values.password ? "" : "Passwords don't match."
+        };
 
-const passwordInput =
-    document.getElementById(
-        "password"
-    );
+        let first = null;
+        Object.entries(errors).forEach(([id, message]) => {
+            setError(id, message);
+            if (message && !first) first = id;
+        });
 
+        if (first) {
+            $(first).focus();
+            return null;
+        }
+        return values;
+    }
 
-const togglePassword =
-    document.getElementById(
-        "toggle-password"
-    );
+    async function onSubmit(event) {
+        event.preventDefault();
 
+        const values = validate();
+        if (!values) return;
 
-if (
-    togglePassword &&
-    passwordInput
-) {
+        const button = $("register-button");
+        setBusy(button, true, "Creating account…");
 
-    togglePassword.addEventListener(
-        "click",
-        function () {
+        try {
+            await api("/api/register", {
+                method: "POST",
+                body: {
+                    name: values.name,
+                    email: values.email,
+                    phone: values.phone,
+                    password: values.password
+                }
+            });
 
-            if (
-                passwordInput.type ===
-                "password"
-            ) {
+            location.href = `login.html?registered=1&email=${encodeURIComponent(values.email)}`;
+        } catch (error) {
+            setBusy(button, false);
 
-                passwordInput.type =
-                    "text";
-
-                togglePassword.textContent =
-                    "🙈";
-
+            if (error.status === 409) {
+                setError("email", error.message);
+                $("email").focus();
             } else {
-
-                passwordInput.type =
-                    "password";
-
-                togglePassword.textContent =
-                    "👁";
-
+                SkyBook.alert("Couldn't create account", error.message, "❌");
             }
-
         }
-    );
-
-}
-
-
-/* =====================================================
-   CUSTOM ALERT
-===================================================== */
-
-function showAlert(
-    title,
-    message,
-    icon = "⚠️"
-) {
-
-    const overlay =
-        document.getElementById(
-            "custom-alert"
-        );
-
-
-    const alertTitle =
-        document.getElementById(
-            "alert-title"
-        );
-
-
-    const alertMessage =
-        document.getElementById(
-            "alert-message"
-        );
-
-
-    const alertIcon =
-        document.getElementById(
-            "alert-icon"
-        );
-
-
-    const alertButton =
-        document.getElementById(
-            "alert-button"
-        );
-
-
-    /* =================================================
-       FALLBACK
-    ================================================= */
-
-    if (
-        !overlay ||
-        !alertTitle ||
-        !alertMessage
-    ) {
-
-        alert(
-            `${title}\n\n${message}`
-        );
-
-        return;
-
     }
 
-
-    alertTitle.textContent =
-        title;
-
-
-    alertMessage.textContent =
-        message;
-
-
-    if (alertIcon) {
-
-        alertIcon.textContent =
-            icon;
-
-    }
-
-
-    overlay.classList.add(
-        "show"
-    );
-
-
-    if (alertButton) {
-
-        alertButton.onclick =
-            function () {
-
-                overlay.classList.remove(
-                    "show"
-                );
-
-            };
-
-    }
-
-}
-
-
-/* =====================================================
-   REGISTER
-===================================================== */
-
-if (registerForm) {
-
-    registerForm.addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-
-            /* =================================================
-               GET VALUES
-            ================================================= */
-
-            const name =
-                document
-                    .getElementById(
-                        "name"
-                    )
-                    .value
-                    .trim();
-
-
-            const email =
-                document
-                    .getElementById(
-                        "email"
-                    )
-                    .value
-                    .trim();
-
-
-            const phoneInput =
-                document.getElementById(
-                    "phone"
-                );
-
-
-            const phone =
-                phoneInput
-                    ? phoneInput.value.trim()
-                    : "";
-
-
-            const password =
-                document
-                    .getElementById(
-                        "password"
-                    )
-                    .value;
-
-
-            /* =================================================
-               NAME VALIDATION
-            ================================================= */
-
-            if (
-                name === ""
-            ) {
-
-                showAlert(
-                    "Name Required",
-                    "Please enter your full name.",
-                    "👤"
-                );
-
-                return;
-            }
-
-
-            /* =================================================
-               EMAIL VALIDATION
-            ================================================= */
-
-            if (
-                email === ""
-            ) {
-
-                showAlert(
-                    "Email Required",
-                    "Please enter your email address.",
-                    "📧"
-                );
-
-                return;
-            }
-
-
-            const emailPattern =
-                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-            if (
-                !emailPattern.test(
-                    email
-                )
-            ) {
-
-                showAlert(
-                    "Invalid Email",
-                    "Please enter a valid email address.",
-                    "⚠️"
-                );
-
-                return;
-            }
-
-
-            /* =================================================
-               PHONE VALIDATION
-            ================================================= */
-
-            if (
-                phone !== ""
-            ) {
-
-                const phonePattern =
-                    /^[0-9]{10}$/;
-
-
-                if (
-                    !phonePattern.test(
-                        phone
-                    )
-                ) {
-
-                    showAlert(
-                        "Invalid Phone",
-                        "Please enter a valid 10-digit phone number.",
-                        "📱"
-                    );
-
-                    return;
-                }
-
-            }
-
-
-            /* =================================================
-               PASSWORD VALIDATION
-            ================================================= */
-
-            if (
-                password === ""
-            ) {
-
-                showAlert(
-                    "Password Required",
-                    "Please enter a password.",
-                    "🔒"
-                );
-
-                return;
-            }
-
-
-            if (
-                password.length < 6
-            ) {
-
-                showAlert(
-                    "Password Too Short",
-                    "Password must contain at least 6 characters.",
-                    "🔒"
-                );
-
-                return;
-            }
-
-
-            /* =================================================
-               SEND TO NODE SERVER
-            ================================================= */
-
-            try {
-
-                console.log(
-                    "👤 Creating SkyBook account..."
-                );
-
-
-                const response =
-                    await fetch(
-                        `${API_BASE_URL}/api/register`,
-                        {
-
-                            method:
-                                "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    name:
-                                        name,
-
-                                    email:
-                                        email,
-
-                                    phone:
-                                        phone,
-
-                                    password:
-                                        password
-
-                                })
-
-                        }
-                    );
-
-
-                /* =================================================
-                   READ RESPONSE
-                ================================================= */
-
-                const data =
-                    await response.json();
-
-
-                console.log(
-                    "Registration response:",
-                    data
-                );
-
-
-                /* =================================================
-                   SUCCESS
-                ================================================= */
-
-                if (
-                    response.ok &&
-                    data.success
-                ) {
-
-                    showAlert(
-                        "Account Created",
-                        "Your SkyBook account has been created successfully!",
-                        "🎉"
-                    );
-
-
-                    /* =============================================
-                       GO TO LOGIN
-                    ============================================= */
-
-                    setTimeout(
-                        function () {
-
-                            window.location.href =
-                                "login.html";
-
-                        },
-                        1200
-                    );
-
-
-                    return;
-
-                }
-
-
-                /* =================================================
-                   EMAIL ALREADY EXISTS
-                ================================================= */
-
-                if (
-                    response.status ===
-                    409
-                ) {
-
-                    showAlert(
-                        "Account Already Exists",
-                        data.message ||
-                            "An account with this email already exists.",
-                        "📧"
-                    );
-
-                    return;
-
-                }
-
-
-                /* =================================================
-                   OTHER SERVER ERROR
-                ================================================= */
-
-                showAlert(
-                    "Registration Failed",
-                    data.message ||
-                        "Unable to create your account.",
-                    "❌"
-                );
-
-            }
-
-
-            /* =================================================
-               CONNECTION ERROR
-            ================================================= */
-
-            catch (
-                error
-            ) {
-
-                console.error(
-                    "❌ Registration error:",
-                    error
-                );
-
-
-                showAlert(
-                    "Server Error",
-                    "Unable to connect to the SkyBook server. Please make sure server.js is running on port 3000.",
-                    "⚠️"
-                );
-
-            }
-
+    function init() {
+        if (session.user) {
+            location.replace("index.html");
+            return;
         }
-    );
 
-} else {
+        SkyBook.bindPasswordToggle($("toggle-password"), $("password"));
 
-    console.error(
-        "❌ register-form was not found."
-    );
+        $("phone").addEventListener("input", e => {
+            e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+        });
 
-}
+        // Clear an error as soon as the field is edited.
+        $("register-form").addEventListener("input", e => {
+            if (e.target.id) setError(e.target.id, "");
+        });
+
+        $("register-form").addEventListener("submit", onSubmit);
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+})();

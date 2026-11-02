@@ -1,16 +1,19 @@
 {
   "name": "airline-reservation",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "SkyBook – airline reservation system (Node.js, Express, MySQL)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --watch server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",

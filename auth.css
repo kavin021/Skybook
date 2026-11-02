@@ -1,0 +1,92 @@
+/* =====================================================
+   SKYBOOK — LOGIN & REGISTER
+===================================================== */
+
+body {
+    background:
+        radial-gradient(circle at 15% 20%, #d7f3ff 0%, transparent 35%),
+        radial-gradient(circle at 85% 80%, #c9edff 0%, transparent 35%),
+        var(--sb-bg);
+}
+
+.auth-page {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 18px;
+}
+
+.auth-card {
+    width: min(440px, 100%);
+    padding: 38px 36px;
+    border-radius: 22px;
+    text-align: center;
+    box-shadow: 0 25px 70px rgba(30, 119, 166, 0.15);
+}
+
+.auth-icon {
+    width: 66px;
+    height: 66px;
+    margin: 0 auto 16px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #dff6ff, #c5ecfc);
+    font-size: 30px;
+}
+
+.auth-card h1 {
+    color: var(--sb-ink);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+}
+
+.auth-subtitle {
+    margin: 8px 0 26px;
+    color: var(--sb-muted);
+    font-size: 14px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    text-align: left;
+}
+
+.auth-form .sb-btn {
+    margin-top: 8px;
+    min-height: 50px;
+}
+
+.optional {
+    color: #97abbb;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.auth-switch {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #e1eef5;
+    color: var(--sb-muted);
+    font-size: 14px;
+}
+
+.auth-switch a {
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 500px) {
+    .auth-card {
+        padding: 30px 22px;
+    }
+}

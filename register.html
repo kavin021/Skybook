@@ -1,174 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyBook - Create Account</title>
-
-    <link rel="stylesheet" href="register.css">
-
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="auth.css">
 </head>
-
 <body>
 
-    <div class="register-container">
+    <header class="sb-nav">
+        <a href="index.html" class="sb-logo">✈️ SkyBook</a>
+        <nav class="sb-nav-links" data-nav-links aria-label="Main">
+            <a href="index.html">Home</a>
+            <a href="my-bookings.html">My Bookings</a>
+        </nav>
+    </header>
 
-        <div class="register-card">
+    <main class="auth-page">
+        <div class="auth-card sb-card">
 
-            <div class="logo">
-                ✈️ SkyBook
-            </div>
+            <div class="auth-icon" aria-hidden="true">🧳</div>
+            <h1>Create your account</h1>
+            <p class="auth-subtitle">Save your details and see all your trips in one place.</p>
 
-            <h1>Create Account</h1>
+            <form id="register-form" class="auth-form" novalidate>
 
-            <p class="subtitle">
-                Create your SkyBook account to book flights.
-            </p>
-
-
-            <form id="register-form">
-
-                <div class="form-group">
-
-                    <label for="name">
-                        Full Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="name"
-                        placeholder="Enter your full name"
-                    >
-
+                <div class="sb-field">
+                    <label for="name">Full name</label>
+                    <input id="name" placeholder="As on your ID" autocomplete="name" maxlength="100">
+                    <span class="sb-field-error" id="name-error"></span>
                 </div>
 
-
-                <div class="form-group">
-
-                    <label for="email">
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        placeholder="Enter your email"
-                    >
-
+                <div class="sb-field">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="you@example.com" autocomplete="email" maxlength="100">
+                    <span class="sb-field-error" id="email-error"></span>
                 </div>
 
-
-                <div class="form-group">
-
-                    <label for="phone">
-                        Phone Number
-                    </label>
-
-                    <input
-                        type="tel"
-                        id="phone"
-                        placeholder="10-digit phone number"
-                        maxlength="10"
-                    >
-
+                <div class="sb-field">
+                    <label for="phone">Phone <span class="optional">(optional)</span></label>
+                    <input type="tel" id="phone" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel-national" maxlength="10">
+                    <span class="sb-field-error" id="phone-error"></span>
                 </div>
 
-
-                <div class="form-group">
-
-                    <label for="password">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="Create a password"
-                    >
-
+                <div class="sb-field">
+                    <label for="password">Password</label>
+                    <div class="sb-password">
+                        <input type="password" id="password" placeholder="At least 6 characters" autocomplete="new-password" maxlength="72">
+                        <button type="button" id="toggle-password" class="sb-password-toggle" aria-label="Show password">👁</button>
+                    </div>
+                    <span class="sb-field-error" id="password-error"></span>
                 </div>
 
-
-                <div class="form-group">
-
-                    <label for="confirm-password">
-                        Confirm Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="confirm-password"
-                        placeholder="Confirm your password"
-                    >
-
+                <div class="sb-field">
+                    <label for="confirm-password">Confirm password</label>
+                    <input type="password" id="confirm-password" placeholder="Type it again" autocomplete="new-password" maxlength="72">
+                    <span class="sb-field-error" id="confirm-password-error"></span>
                 </div>
 
-
-                <button
-                    type="submit"
-                    class="register-btn"
-                >
-                    Create Account
-                </button>
-
+                <button type="submit" id="register-button" class="sb-btn sb-btn-primary sb-btn-block">Create account</button>
             </form>
 
-
-            <p class="login-text">
-
-                Already have an account?
-
-                <a href="login.html">
-                    Login
-                </a>
-
+            <p class="auth-switch">
+                Already have an account? <a href="login.html">Log in</a>
             </p>
-
         </div>
+    </main>
 
-    </div>
-
-
-    <!-- CUSTOM ALERT -->
-
-    <div
-        id="custom-alert"
-        class="alert-overlay"
-    >
-
-        <div class="alert-box">
-
-            <div
-                id="alert-icon"
-                class="alert-icon"
-            >
-                ⚠️
-            </div>
-
-            <h2 id="alert-title">
-                Alert
-            </h2>
-
-            <p id="alert-message">
-                Message
-            </p>
-
-            <button id="alert-button">
-                OK
-            </button>
-
-        </div>
-
-    </div>
-
-
+    <script src="common.js"></script>
     <script src="register.js"></script>
-
 </body>
-
 </html>

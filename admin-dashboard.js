@@ -1,1068 +1,370 @@
 /* =====================================================
-   SKYBOOK ADMIN DASHBOARD
+   SKYBOOK — ADMIN DASHBOARD
 ===================================================== */
 
-const API_URL = "http://localhost:3000";
+(function () {
+    "use strict";
 
+    const {
+        api, escapeHTML, formatMoney, formatTime, formatDate,
+        formatDateTime, arrivesNextDay, setBusy, toast
+    } = SkyBook;
 
-/* =====================================================
-   ELEMENTS
-===================================================== */
+    const $ = id => document.getElementById(id);
 
-const flightTableBody =
-    document.getElementById("flight-table-body");
+    let flights = [];
+    let aircraftList = [];
 
-const totalFlights =
-    document.getElementById("total-flights");
-
-const availableFlights =
-    document.getElementById("available-flights");
-
-const cancelledFlights =
-    document.getElementById("cancelled-flights");
-
-const flightModal =
-    document.getElementById("flight-modal");
-
-const flightForm =
-    document.getElementById("flight-form");
-
-const modalTitle =
-    document.getElementById("modal-title");
-
-const flightIdInput =
-    document.getElementById("flight-id");
-
-const aircraftSelect =
-    document.getElementById("aircraft-id");
-
-const addFlightButton =
-    document.getElementById("add-flight-button");
-
-const closeModalButton =
-    document.getElementById("close-modal");
-
-const cancelModalButton =
-    document.getElementById("cancel-modal");
-
-const refreshButton =
-    document.getElementById("refresh-flights");
-
-const logoutButton =
-    document.getElementById("logout-button");
-
-
-/* =====================================================
-   CUSTOM ALERT
-===================================================== */
-
-function showAlert(title, message, icon = "⚠️") {
-
-    const overlay =
-        document.getElementById("custom-alert");
-
-    const alertTitle =
-        document.getElementById("alert-title");
-
-    const alertMessage =
-        document.getElementById("alert-message");
-
-    const alertIcon =
-        document.getElementById("alert-icon");
-
-    const alertButton =
-        document.getElementById("alert-button");
-
-
-    alertTitle.textContent = title;
-
-    alertMessage.textContent = message;
-
-    alertIcon.textContent = icon;
-
-    overlay.classList.add("show");
-
-
-    alertButton.onclick = function () {
-
-        overlay.classList.remove("show");
-
+    const STATUS_BADGE = {
+        Available: "sb-badge-success",
+        Full: "sb-badge-warn",
+        Cancelled: "sb-badge-danger",
+        Confirmed: "sb-badge-success"
     };
 
-}
-
-
-/* =====================================================
-   LOAD FLIGHTS
-===================================================== */
-
-async function loadFlights() {
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/api/admin/flights`
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Failed to load flights"
-            );
-
-        }
-
-
-        const flights =
-            await response.json();
-
-
-        displayFlights(flights);
-
-        updateStatistics(flights);
-
-
-    } catch (error) {
-
-        console.error(
-            "Flight loading error:",
-            error
-        );
-
-
-        showAlert(
-            "Unable to Load Flights",
-            "Could not connect to the SkyBook server.",
-            "⚠️"
-        );
-
+    function badge(status) {
+        return `<span class="sb-badge ${STATUS_BADGE[status] || "sb-badge-muted"}">${escapeHTML(status)}</span>`;
     }
 
-}
+    /** Admin API errors: an expired login sends you back to the login page. */
+    function handleError(title, error) {
+        if (error.status === 401 || error.status === 403) {
+            SkyBook.requireAdmin();
+            return;
+        }
+        SkyBook.alert(title, error.message, "❌");
+    }
 
 
-/* =====================================================
-   DISPLAY FLIGHTS
-===================================================== */
+    /* =================================================
+       STATS
+    ================================================= */
 
-function displayFlights(flights) {
+    async function loadStats() {
+        try {
+            const { stats } = await api("/api/admin/stats");
+            $("stat-total").textContent = stats.totalFlights;
+            $("stat-available").textContent = stats.availableFlights;
+            $("stat-cancelled").textContent = stats.cancelledFlights;
+            $("stat-bookings").textContent = stats.confirmedBookings;
+            $("stat-revenue").textContent = formatMoney(stats.revenue);
+        } catch (error) {
+            handleError("Couldn't load statistics", error);
+        }
+    }
 
-    flightTableBody.innerHTML = "";
 
+    /* =================================================
+       FLIGHTS TABLE
+    ================================================= */
 
-    if (flights.length === 0) {
+    async function loadFlights() {
+        try {
+            ({ flights } = await api("/api/admin/flights"));
+            renderFlights();
 
-        flightTableBody.innerHTML = `
+            const cities = [...new Set(flights.flatMap(f => [f.Source, f.Destination]))].sort();
+            $("admin-cities").innerHTML = cities.map(c => `<option value="${escapeHTML(c)}">`).join("");
+        } catch (error) {
+            $("flight-table-body").innerHTML =
+                `<tr><td colspan="9"><div class="sb-empty"><h3>Couldn't load flights</h3><p>${escapeHTML(error.message)}</p></div></td></tr>`;
+            handleError("Couldn't load flights", error);
+        }
+    }
 
-            <tr>
+    function renderFlights() {
+        const term = $("flight-filter").value.trim().toLowerCase();
 
-                <td
-                    colspan="7"
-                    style="text-align:center; padding:50px;">
+        const visible = flights.filter(f =>
+            !term ||
+            [f.FlightNumber, f.AirlineName, f.Source, f.Destination]
+                .some(v => String(v).toLowerCase().includes(term))
+        );
 
-                    <div class="empty-state">
-
-                        <div class="empty-state-icon">
-                            ✈️
-                        </div>
-
-                        <h3>
-                            No flights found
-                        </h3>
-
-                        <p>
-                            Add your first flight to SkyBook.
-                        </p>
-
+        if (visible.length === 0) {
+            $("flight-table-body").innerHTML = `
+                <tr><td colspan="9">
+                    <div class="sb-empty">
+                        <div class="sb-empty-icon">✈️</div>
+                        <h3>${flights.length ? "No flights match your search" : "No flights yet"}</h3>
+                        <p>${flights.length ? "Try a different search." : "Add your first flight to get started."}</p>
                     </div>
+                </td></tr>`;
+            return;
+        }
 
-                </td>
+        $("flight-table-body").innerHTML = visible.map(f => {
+            const nextDay = arrivesNextDay(f.DepartureTime, f.ArrivalTime);
+            const cancelled = f.Status === "Cancelled";
 
-            </tr>
+            return `
+                <tr class="${cancelled ? "row-muted" : ""}">
+                    <td>
+                        <div class="cell-strong">${escapeHTML(f.FlightNumber)}</div>
+                        <div class="cell-sub">${escapeHTML(f.AirlineName)}</div>
+                    </td>
+                    <td class="cell-strong">${escapeHTML(f.Source)} → ${escapeHTML(f.Destination)}</td>
+                    <td>${formatTime(f.DepartureTime)}</td>
+                    <td>${formatTime(f.ArrivalTime)}${nextDay ? ' <span class="next-day">+1</span>' : ""}<div class="cell-sub">${escapeHTML(f.Duration)}</div></td>
+                    <td>
+                        <div>${escapeHTML(f.AircraftModel)}</div>
+                        <div class="cell-sub">${f.Capacity} seats</div>
+                    </td>
+                    <td>${formatMoney(f.Fare)}</td>
+                    <td>${cancelled ? "—" : `${f.SeatsAvailable} / ${f.Capacity}`}</td>
+                    <td>${badge(f.Status)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button type="button" class="sb-btn sb-btn-secondary sb-btn-sm" data-action="edit" data-id="${f.FlightID}">Edit</button>
+                            <a class="sb-btn sb-btn-secondary sb-btn-sm" href="admin-seats.html?flight=${f.FlightID}">Seats</a>
+                            ${cancelled ? "" : `<button type="button" class="sb-btn sb-btn-ghost-danger sb-btn-sm" data-action="cancel" data-id="${f.FlightID}">Cancel</button>`}
+                        </div>
+                    </td>
+                </tr>`;
+        }).join("");
+    }
 
-        `;
+    function onFlightTableClick(event) {
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
 
-        return;
+        const flight = flights.find(f => String(f.FlightID) === button.dataset.id);
+        if (!flight) return;
 
+        if (button.dataset.action === "edit") openModal(flight);
+        if (button.dataset.action === "cancel") cancelFlight(flight, button);
     }
 
 
-    flights.forEach(function (flight) {
+    /* =================================================
+       RECENT BOOKINGS
+    ================================================= */
 
-        const row =
-            document.createElement("tr");
+    async function loadBookings() {
+        try {
+            const { bookings } = await api("/api/admin/bookings", { query: { limit: 25 } });
 
+            if (bookings.length === 0) {
+                $("booking-table-body").innerHTML =
+                    `<tr><td colspan="8"><div class="sb-empty"><h3>No bookings yet</h3></div></td></tr>`;
+                return;
+            }
 
-        let statusClass =
-            "available";
-
-
-        if (flight.Status === "Full") {
-
-            statusClass = "full";
-
+            $("booking-table-body").innerHTML = bookings.map(b => `
+                <tr class="clickable ${b.bookingStatus === "Cancelled" ? "row-muted" : ""}" data-booking="${b.bookingID}" tabindex="0">
+                    <td class="cell-strong">#${b.bookingID}</td>
+                    <td>${formatDate(b.travelDate)}</td>
+                    <td>
+                        <div class="cell-strong">${escapeHTML(b.flight.flightNumber)}</div>
+                        <div class="cell-sub">${escapeHTML(b.flight.source)} → ${escapeHTML(b.flight.destination)}</div>
+                    </td>
+                    <td>
+                        <div>${escapeHTML(b.passengers[0]?.name || "—")}</div>
+                        <div class="cell-sub">${escapeHTML(b.passengers[0]?.email || "")}</div>
+                    </td>
+                    <td>${escapeHTML(b.passengers.map(p => p.seatNumber).join(", "))}</td>
+                    <td>${formatMoney(b.totalFare)}</td>
+                    <td>${badge(b.bookingStatus)}</td>
+                    <td class="cell-sub">${formatDateTime(b.bookingDate)}</td>
+                </tr>`).join("");
+        } catch (error) {
+            $("booking-table-body").innerHTML =
+                `<tr><td colspan="8"><div class="sb-empty"><h3>Couldn't load bookings</h3><p>${escapeHTML(error.message)}</p></div></td></tr>`;
         }
-
-
-        if (flight.Status === "Cancelled") {
-
-            statusClass = "cancelled";
-
-        }
-
-
-        row.innerHTML = `
-
-            <td>
-
-                <div class="flight-number">
-                    ${escapeHTML(flight.FlightNumber)}
-                </div>
-
-                <div class="airline-name">
-                    ${escapeHTML(flight.AirlineName)}
-                </div>
-
-            </td>
-
-
-            <td>
-
-                <div class="route">
-
-                    ${escapeHTML(flight.Source)}
-
-                    →
-
-                    ${escapeHTML(flight.Destination)}
-
-                </div>
-
-            </td>
-
-
-            <td>
-                ${formatTime(flight.DepartureTime)}
-            </td>
-
-
-            <td>
-                ${formatTime(flight.ArrivalTime)}
-            </td>
-
-
-            <td>
-
-                ₹${Number(flight.Fare)
-                    .toLocaleString("en-IN")}
-
-            </td>
-
-
-            <td>
-
-                <span
-                    class="status ${statusClass}">
-
-                    ${escapeHTML(flight.Status)}
-
-                </span>
-
-            </td>
-
-
-            <td>
-
-                <div class="action-buttons">
-
-                    <button
-                        class="action-button edit-button"
-                        onclick="editFlight(${flight.FlightID})">
-
-                        Edit
-
-                    </button>
-
-
-                    ${
-                        flight.Status !== "Cancelled"
-
-                        ? `
-
-                            <button
-                                class="action-button cancel-button"
-                                onclick="cancelFlight(${flight.FlightID})">
-
-                                Cancel
-
-                            </button>
-
-                          `
-
-                        : ""
-
-                    }
-
-                </div>
-
-            </td>
-
-        `;
-
-
-        flightTableBody.appendChild(row);
-
-    });
-
-}
-
-
-/* =====================================================
-   UPDATE STATISTICS
-===================================================== */
-
-function updateStatistics(flights) {
-
-    const total =
-        flights.length;
-
-
-    const available =
-        flights.filter(
-            flight =>
-                flight.Status === "Available"
-        ).length;
-
-
-    const cancelled =
-        flights.filter(
-            flight =>
-                flight.Status === "Cancelled"
-        ).length;
-
-
-    totalFlights.textContent =
-        total;
-
-    availableFlights.textContent =
-        available;
-
-    cancelledFlights.textContent =
-        cancelled;
-
-}
-
-
-/* =====================================================
-   LOAD AIRCRAFT
-===================================================== */
-
-async function loadAircraft() {
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/api/admin/aircraft`
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Failed to load aircraft"
-            );
-
-        }
-
-
-        const aircraft =
-            await response.json();
-
-
-        aircraftSelect.innerHTML = `
-
-            <option value="">
-                Select Aircraft
-            </option>
-
-        `;
-
-
-        aircraft.forEach(function (item) {
-
-            const option =
-                document.createElement("option");
-
-
-            option.value =
-                item.AircraftID;
-
-
-            option.textContent =
-                `${item.AircraftName} - ${item.AircraftModel}
-                (${item.Capacity} seats)`;
-
-
-            aircraftSelect.appendChild(option);
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Aircraft loading error:",
-            error
-        );
-
     }
 
-}
-
-
-/* =====================================================
-   OPEN ADD FLIGHT MODAL
-===================================================== */
-
-function openAddFlightModal() {
-
-    flightForm.reset();
-
-
-    flightIdInput.value = "";
-
-
-    modalTitle.textContent =
-        "Add Flight";
-
-
-    flightModal.classList.add("show");
-
-}
-
-
-/* =====================================================
-   OPEN EDIT FLIGHT MODAL
-===================================================== */
-
-async function editFlight(flightID) {
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/api/admin/flights/${flightID}`
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Failed to get flight"
-            );
-
-        }
-
-
-        const flight =
-            await response.json();
-
-
-        flightIdInput.value =
-            flight.FlightID;
-
-
-        document.getElementById(
-            "flight-number"
-        ).value =
-            flight.FlightNumber;
-
-
-        document.getElementById(
-            "airline-name"
-        ).value =
-            flight.AirlineName;
-
-
-        document.getElementById(
-            "source"
-        ).value =
-            flight.Source;
-
-
-        document.getElementById(
-            "destination"
-        ).value =
-            flight.Destination;
-
-
-        document.getElementById(
-            "departure-time"
-        ).value =
-            formatTimeForInput(
-                flight.DepartureTime
-            );
-
-
-        document.getElementById(
-            "arrival-time"
-        ).value =
-            formatTimeForInput(
-                flight.ArrivalTime
-            );
-
-
-        document.getElementById(
-            "duration"
-        ).value =
-            flight.Duration;
-
-
-        document.getElementById(
-            "fare"
-        ).value =
-            flight.Fare;
-
-
-        document.getElementById(
-            "aircraft-id"
-        ).value =
-            flight.AircraftID || "";
-
-
-        document.getElementById(
-            "flight-status"
-        ).value =
-            flight.Status;
-
-
-        modalTitle.textContent =
-            "Edit Flight";
-
-
-        flightModal.classList.add("show");
-
-
-    } catch (error) {
-
-        console.error(
-            "Edit flight error:",
-            error
-        );
-
-
-        showAlert(
-            "Error",
-            "Unable to load flight details.",
-            "❌"
-        );
-
+    function openBooking(event) {
+        if (event.type === "keydown" && event.key !== "Enter") return;
+        const row = event.target.closest("[data-booking]");
+        if (row) location.href = `my-bookings.html?id=${row.dataset.booking}`;
     }
 
-}
+
+    /* =================================================
+       AIRCRAFT
+    ================================================= */
+
+    async function loadAircraft() {
+        try {
+            ({ aircraft: aircraftList } = await api("/api/admin/aircraft"));
+
+            $("aircraft-id").innerHTML =
+                `<option value="">Select aircraft</option>` +
+                aircraftList.map(a => `
+                    <option value="${a.AircraftID}">
+                        ${escapeHTML(a.AircraftName)} ${escapeHTML(a.AircraftModel)} · ${a.SeatCount} seats
+                    </option>`).join("");
+        } catch (error) {
+            handleError("Couldn't load aircraft", error);
+        }
+    }
 
 
-/* =====================================================
-   SAVE FLIGHT
-===================================================== */
+    /* =================================================
+       ADD / EDIT MODAL
+    ================================================= */
 
-flightForm.addEventListener(
-    "submit",
-    async function (event) {
+    function updateDuration() {
+        const dep = $("departure-time").value;
+        const arr = $("arrival-time").value;
 
+        if (!dep || !arr) {
+            $("duration").value = "";
+            $("duration-hint").textContent = "";
+            return;
+        }
+
+        const toMin = t => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+        let minutes = toMin(arr) - toMin(dep);
+        const overnight = minutes <= 0;
+        if (overnight) minutes += 24 * 60;
+
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        $("duration").value = m ? `${h}h ${m}m` : `${h}h`;
+        $("duration-hint").textContent = overnight ? "Arrives the next day." : "";
+    }
+
+    function openModal(flight = null) {
+        const form = $("flight-form");
+        form.reset();
+
+        $("flight-id").value = flight ? flight.FlightID : "";
+        $("modal-title").textContent = flight ? `Edit ${flight.FlightNumber}` : "Add flight";
+
+        if (flight) {
+            $("flight-number").value = flight.FlightNumber;
+            $("airline-name").value = flight.AirlineName;
+            $("source").value = flight.Source;
+            $("destination").value = flight.Destination;
+            $("departure-time").value = formatTime(flight.DepartureTime);
+            $("arrival-time").value = formatTime(flight.ArrivalTime);
+            $("fare").value = flight.Fare;
+            $("aircraft-id").value = flight.AircraftID;
+            $("flight-status").value = flight.Status;
+        } else {
+            $("airline-name").value = "SkyBook Airlines";
+        }
+
+        updateDuration();
+        $("flight-modal").classList.add("show");
+        $("flight-number").focus();
+    }
+
+    function closeModal() {
+        $("flight-modal").classList.remove("show");
+    }
+
+    async function saveFlight(event) {
         event.preventDefault();
 
-
-        const flightID =
-            flightIdInput.value;
-
-
-        const flightData = {
-
-            FlightNumber:
-                document.getElementById(
-                    "flight-number"
-                ).value.trim(),
-
-            AirlineName:
-                document.getElementById(
-                    "airline-name"
-                ).value.trim(),
-
-            Source:
-                document.getElementById(
-                    "source"
-                ).value.trim(),
-
-            Destination:
-                document.getElementById(
-                    "destination"
-                ).value.trim(),
-
-            DepartureTime:
-                document.getElementById(
-                    "departure-time"
-                ).value,
-
-            ArrivalTime:
-                document.getElementById(
-                    "arrival-time"
-                ).value,
-
-            Duration:
-                document.getElementById(
-                    "duration"
-                ).value.trim(),
-
-            Fare:
-                Number(
-                    document.getElementById(
-                        "fare"
-                    ).value
-                ),
-
-            AircraftID:
-                document.getElementById(
-                    "aircraft-id"
-                ).value,
-
-            Status:
-                document.getElementById(
-                    "flight-status"
-                ).value
-
+        const id = $("flight-id").value;
+        const data = {
+            FlightNumber: $("flight-number").value.trim().toUpperCase(),
+            AirlineName: $("airline-name").value.trim(),
+            Source: $("source").value.trim(),
+            Destination: $("destination").value.trim(),
+            DepartureTime: $("departure-time").value,
+            ArrivalTime: $("arrival-time").value,
+            Fare: Number($("fare").value),
+            AircraftID: Number($("aircraft-id").value),
+            Status: $("flight-status").value
         };
 
+        const missing = !data.FlightNumber || !data.AirlineName || !data.Source ||
+            !data.Destination || !data.DepartureTime || !data.ArrivalTime || !data.AircraftID;
 
-        /* =========================
-           BASIC VALIDATION
-        ========================== */
-
-        if (
-            flightData.Source.toLowerCase() ===
-            flightData.Destination.toLowerCase()
-        ) {
-
-            showAlert(
-                "Invalid Route",
-                "From and To locations cannot be the same.",
-                "⚠️"
-            );
-
-            return;
-
+        if (missing) {
+            return SkyBook.alert("Missing details", "Please fill in every field.");
+        }
+        if (data.Source.toLowerCase() === data.Destination.toLowerCase()) {
+            return SkyBook.alert("Check the route", "From and To can't be the same city.");
+        }
+        if (!(data.Fare > 0)) {
+            return SkyBook.alert("Check the fare", "The fare must be more than zero.");
         }
 
+        const button = $("save-flight");
+        setBusy(button, true, "Saving…");
 
         try {
-
-            let response;
-
-
-            /* =========================
-               ADD
-            ========================== */
-
-            if (!flightID) {
-
-                response =
-                    await fetch(
-                        `${API_URL}/api/admin/flights`,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    flightData
-                                )
-                        }
-                    );
-
-            }
-
-
-            /* =========================
-               EDIT
-            ========================== */
-
-            else {
-
-                response =
-                    await fetch(
-                        `${API_URL}/api/admin/flights/${flightID}`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    flightData
-                                )
-                        }
-                    );
-
-            }
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.message ||
-                    "Failed to save flight"
-                );
-
-            }
-
+            const result = await api(id ? `/api/admin/flights/${id}` : "/api/admin/flights", {
+                method: id ? "PUT" : "POST",
+                body: data
+            });
 
             closeModal();
-
-
-            await loadFlights();
-
-
-            showAlert(
-                "Success",
-                flightID
-                    ? "Flight updated successfully."
-                    : "Flight added successfully.",
-                "✅"
-            );
-
-
+            toast(result.message, "success");
+            await Promise.all([loadFlights(), loadStats()]);
         } catch (error) {
-
-            console.error(
-                "Save flight error:",
-                error
-            );
-
-
-            showAlert(
-                "Unable to Save",
-                error.message,
-                "❌"
-            );
-
+            handleError("Couldn't save flight", error);
+        } finally {
+            setBusy(button, false);
         }
-
     }
-);
 
 
-/* =====================================================
-   CANCEL FLIGHT
-===================================================== */
+    /* =================================================
+       CANCEL FLIGHT
+    ================================================= */
 
-async function cancelFlight(flightID) {
-
-    const confirmed =
-        confirm(
-            "Are you sure you want to cancel this flight?"
+    async function cancelFlight(flight, button) {
+        const ok = await SkyBook.confirm(
+            `Cancel ${flight.FlightNumber}?`,
+            `${flight.Source} → ${flight.Destination} will stop taking bookings, and every existing booking on this flight will be cancelled and marked for refund.\n\nThis can't be undone.`,
+            { confirmLabel: "Cancel flight", cancelLabel: "Keep flight", icon: "🚫", danger: true }
         );
+        if (!ok) return;
 
+        setBusy(button, true, "…");
 
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/api/admin/flights/${flightID}`,
-                {
-                    method: "DELETE"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Failed to cancel flight"
-            );
-
+        try {
+            const result = await api(`/api/admin/flights/${flight.FlightID}`, { method: "DELETE" });
+            SkyBook.alert("Flight cancelled", result.message, "✅");
+            await Promise.all([loadFlights(), loadStats(), loadBookings()]);
+        } catch (error) {
+            setBusy(button, false);
+            handleError("Couldn't cancel flight", error);
         }
-
-
-        await loadFlights();
-
-
-        showAlert(
-            "Flight Cancelled",
-            "The flight has been cancelled and the database has been updated.",
-            "✅"
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Cancel flight error:",
-            error
-        );
-
-
-        showAlert(
-            "Unable to Cancel",
-            error.message,
-            "❌"
-        );
-
     }
 
-}
 
+    /* =================================================
+       START
+    ================================================= */
 
-/* =====================================================
-   CLOSE MODAL
-===================================================== */
+    function init() {
+        if (!SkyBook.session.isAdmin()) return;
 
-function closeModal() {
+        $("add-flight-button").addEventListener("click", () => openModal());
+        $("refresh-button").addEventListener("click", () => {
+            loadFlights();
+            loadStats();
+            loadBookings();
+        });
+        $("flight-filter").addEventListener("input", renderFlights);
+        $("flight-table-body").addEventListener("click", onFlightTableClick);
+        $("booking-table-body").addEventListener("click", openBooking);
+        $("booking-table-body").addEventListener("keydown", openBooking);
 
-    flightModal.classList.remove(
-        "show"
-    );
+        $("close-modal").addEventListener("click", closeModal);
+        $("cancel-modal").addEventListener("click", closeModal);
+        $("flight-modal").addEventListener("click", e => {
+            if (e.target === $("flight-modal")) closeModal();
+        });
+        document.addEventListener("keydown", e => {
+            if (e.key === "Escape" && $("flight-modal").classList.contains("show")) closeModal();
+        });
 
-}
+        $("departure-time").addEventListener("input", updateDuration);
+        $("arrival-time").addEventListener("input", updateDuration);
+        $("flight-form").addEventListener("submit", saveFlight);
 
-
-/* =====================================================
-   EVENT LISTENERS
-===================================================== */
-
-addFlightButton.addEventListener(
-    "click",
-    openAddFlightModal
-);
-
-
-closeModalButton.addEventListener(
-    "click",
-    closeModal
-);
-
-
-cancelModalButton.addEventListener(
-    "click",
-    closeModal
-);
-
-
-refreshButton.addEventListener(
-    "click",
-    function () {
-
+        loadStats();
+        loadAircraft();
         loadFlights();
-
-    }
-);
-
-
-/* =====================================================
-   CLOSE MODAL WHEN CLICKING OUTSIDE
-===================================================== */
-
-flightModal.addEventListener(
-    "click",
-    function (event) {
-
-        if (
-            event.target ===
-            flightModal
-        ) {
-
-            closeModal();
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-logoutButton.addEventListener(
-    "click",
-    function () {
-
-        localStorage.removeItem(
-            "skybookUser"
-        );
-
-        window.location.href =
-            "login.html";
-
-    }
-);
-
-
-/* =====================================================
-   TIME HELPERS
-===================================================== */
-
-function formatTime(time) {
-
-    if (!time) {
-
-        return "";
-
+        loadBookings();
     }
 
-
-    return String(time)
-        .substring(0, 5);
-
-}
-
-
-function formatTimeForInput(time) {
-
-    if (!time) {
-
-        return "";
-
-    }
-
-
-    return String(time)
-        .substring(0, 5);
-
-}
-
-
-/* =====================================================
-   HTML SAFETY
-===================================================== */
-
-function escapeHTML(value) {
-
-    if (value === null ||
-        value === undefined) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/* =====================================================
-   LOAD ADMIN INFORMATION
-===================================================== */
-
-function loadAdminInformation() {
-
-    const savedUser =
-        localStorage.getItem(
-            "skybookUser"
-        );
-
-
-    if (!savedUser) {
-
-        /*
-         * For now we don't redirect.
-         * We'll add proper role authentication
-         * when we update server.js.
-         */
-
-        return;
-
-    }
-
-
-    try {
-
-        const user =
-            JSON.parse(savedUser);
-
-
-        if (user.role === "admin") {
-
-            document.getElementById(
-                "admin-name"
-            ).textContent =
-                user.Name ||
-                "Administrator";
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "User information error:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   INITIALIZE DASHBOARD
-===================================================== */
-
-async function initializeDashboard() {
-
-    loadAdminInformation();
-
-    await loadAircraft();
-
-    await loadFlights();
-
-}
-
-
-initializeDashboard();
-const manageSeatsButton =
-    document.getElementById("manage-seats-button");
-
-if (manageSeatsButton) {
-
-    manageSeatsButton.addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "admin-seats.html";
-
-        }
-    );
-
-}
+    document.addEventListener("DOMContentLoaded", init);
+})();

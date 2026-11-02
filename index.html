@@ -1,520 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>SkyBook - Airline Reservation</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyBook - Book Flights</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="style.css">
 </head>
-
-
 <body>
 
+    <header class="sb-nav">
+        <a href="index.html" class="sb-logo">✈️ SkyBook</a>
+        <nav class="sb-nav-links" data-nav-links aria-label="Main">
+            <a href="index.html">Home</a>
+            <a href="my-bookings.html">My Bookings</a>
+        </nav>
+    </header>
 
-    <!-- =====================================================
-         NAVIGATION
-    ====================================================== -->
+    <main class="sb-page">
 
-    <nav>
-
-        <div class="logo">
-            ✈️ SkyBook
-        </div>
-
-
-        <div class="nav-links">
-
-            <a href="index.html">
-                Home
-            </a>
-
-            <a href="#flight-results">
-                Flights
-            </a>
-
-            <a href="my-bookings.html">
-                My Bookings
-            </a>
-
-            <a href="login.html">
-                Login
-            </a>
-
-        </div>
-
-    </nav>
+        <!-- ================= HERO ================= -->
+        <section class="hero">
+            <h1>Book Your Next Journey ✈️</h1>
+            <p class="subtitle">Search flights, pick your seats and get your e-ticket in minutes.</p>
+        </section>
 
 
+        <!-- ================= SEARCH ================= -->
+        <form id="search-form" class="search-box sb-card" novalidate>
 
-    <!-- =====================================================
-         MAIN
-    ====================================================== -->
-
-    <main>
-
-
-        <!-- =================================================
-             HERO
-        ================================================== -->
-
-        <h1>
-            Book Your Next Journey ✈️
-        </h1>
-
-
-        <p class="subtitle">
-            Search and reserve your flight with ease
-        </p>
-
-
-
-        <!-- =================================================
-             FLIGHT SEARCH
-        ================================================== -->
-
-        <div class="search-box">
-
-
-            <!-- FROM -->
-
-            <div class="input-group">
-
-                <label for="from">
-                    From
-                </label>
-
-                <input
-                    type="text"
-                    id="from"
-                    placeholder="e.g. Chennai"
-                >
-
+            <div class="sb-field">
+                <label for="from">From</label>
+                <input id="from" list="city-list" placeholder="e.g. Chennai" autocomplete="off" required>
             </div>
 
+            <button type="button" id="swap-cities" class="swap-btn" aria-label="Swap From and To" title="Swap">⇄</button>
 
-            <!-- TO -->
-
-            <div class="input-group">
-
-                <label for="to">
-                    To
-                </label>
-
-                <input
-                    type="text"
-                    id="to"
-                    placeholder="e.g. Delhi"
-                >
-
+            <div class="sb-field">
+                <label for="to">To</label>
+                <input id="to" list="city-list" placeholder="e.g. Delhi" autocomplete="off" required>
             </div>
 
-
-            <!-- DEPARTURE -->
-
-            <div class="input-group">
-
-                <label for="departure">
-                    Departure
-                </label>
-
-                <input
-                    type="date"
-                    id="departure"
-                >
-
+            <div class="sb-field">
+                <label for="departure">Departure</label>
+                <input type="date" id="departure" required>
             </div>
 
-
-            <!-- PASSENGERS -->
-
-            <div class="input-group">
-
-                <label for="passengers">
-                    Passengers
-                </label>
-
-                <select id="passengers">
-
-                    <option value="1">
-                        1 Adult
-                    </option>
-
-                    <option value="2">
-                        2 Adults
-                    </option>
-
-                    <option value="3">
-                        3 Adults
-                    </option>
-
-                    <option value="4">
-                        4 Adults
-                    </option>
-
-                    <option value="5">
-                        5 Adults
-                    </option>
-
-                </select>
-
+            <div class="sb-field">
+                <label for="passengers">Passengers</label>
+                <select id="passengers"></select>
             </div>
 
-
-            <!-- SEARCH -->
-
-            <button
-                type="button"
-                onclick="searchFlights()"
-            >
-
+            <button type="submit" id="search-button" class="sb-btn sb-btn-primary search-btn">
                 🔍 Search Flights
-
             </button>
 
-
-        </div>
-
-
-
-        <!-- =================================================
-             FLIGHT RESULTS
-        ================================================== -->
-
-        <section
-            id="flight-results"
-            class="flight-results"
-        >
-
-            <h2>
-                Available Flights ✈️
-            </h2>
+            <datalist id="city-list"></datalist>
+        </form>
 
 
-            <div id="flight-list"></div>
+        <!-- ================= PROGRESS ================= -->
+        <ol class="steps" id="steps" aria-label="Booking progress" hidden>
+            <li data-step="1">Flight</li>
+            <li data-step="2">Passengers</li>
+            <li data-step="3">Seats</li>
+            <li data-step="4">Confirmed</li>
+        </ol>
 
+
+        <!-- ================= RESULTS ================= -->
+        <section id="flight-results" class="booking-step" hidden>
+            <div class="sb-section-head">
+                <h2>Available Flights</h2>
+                <p id="results-summary"></p>
+            </div>
+            <div id="flight-list" class="flight-list" aria-live="polite"></div>
         </section>
 
 
+        <!-- ================= PASSENGERS ================= -->
+        <section id="passenger-section" class="booking-step" hidden>
+            <div class="sb-section-head">
+                <h2>Passenger Details</h2>
+                <p id="passenger-summary"></p>
+            </div>
 
-        <!-- =================================================
-             PASSENGER DETAILS
-        ================================================== -->
-
-        <section
-            id="passenger-section"
-            class="passenger-section"
-            style="display: none;"
-        >
-
-            <h2>
-                Passenger Details 👤
-            </h2>
-
-
-            <div class="passenger-card">
-
-
-                <!-- NAME -->
-
-                <div class="input-group">
-
-                    <label for="passenger-name">
-                        Full Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="passenger-name"
-                        placeholder="Enter passenger name"
-                    >
-
-                </div>
-
-
-                <!-- EMAIL -->
-
-                <div class="input-group">
-
-                    <label for="passenger-email">
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="passenger-email"
-                        placeholder="Enter email address"
-                    >
-
-                </div>
-
-
-                <!-- PHONE -->
-
-                <div class="input-group">
-
-                    <label for="passenger-phone">
-                        Phone Number
-                    </label>
-
-                    <input
-                        type="tel"
-                        id="passenger-phone"
-                        placeholder="Enter 10-digit phone number"
-                    >
-
-                </div>
-
-
-                <!-- IMPORTANT:
-                     THIS IS NOT CONFIRM BOOKING.
-                     IT OPENS THE SEAT SELECTION.
-                -->
-
-                <button
-                    type="button"
-                    onclick="continueToSeats()"
-                >
-
+            <form id="passenger-form" class="passenger-form sb-card" novalidate>
+                <div id="passenger-list" class="passenger-list"></div>
+                <button type="submit" class="sb-btn sb-btn-primary sb-btn-block">
                     Continue to Seat Selection →
-
                 </button>
-
-
-            </div>
-
+            </form>
         </section>
 
 
+        <!-- ================= SEATS ================= -->
+        <section id="seat-section" class="booking-step seat-section sb-card" hidden>
 
-        <!-- =================================================
-             SEAT SELECTION
-        ================================================== -->
-
-        <section
-            id="seat-section"
-            class="seat-section"
-            style="display: none;"
-        >
-
-
-            <h2>
-                Choose Your Seat 💺
-            </h2>
-
-
-            <!-- SELECTED FLIGHT -->
-
-            <div
-                id="selected-flight-info"
-                class="selected-flight-info"
-            >
-
+            <div class="sb-section-head seat-head">
+                <h2>Choose Your Seats</h2>
+                <button type="button" id="back-to-passengers" class="sb-btn sb-btn-secondary sb-btn-sm">← Edit passengers</button>
             </div>
 
-
-            <!-- SEAT LEGEND -->
+            <div id="selected-flight-info" class="selected-flight-info"></div>
 
             <div class="seat-legend">
-
-
-                <div class="legend-item">
-
-                    <span class="legend-seat available"></span>
-
-                    <span>
-                        Available
-                    </span>
-
-                </div>
-
-
-                <div class="legend-item">
-
-                    <span class="legend-seat selected"></span>
-
-                    <span>
-                        Selected
-                    </span>
-
-                </div>
-
-
-                <div class="legend-item">
-
-                    <span class="legend-seat occupied"></span>
-
-                    <span>
-                        Booked
-                    </span>
-
-                </div>
-
-
-                <div class="legend-item">
-
-                    <span class="legend-seat blocked"></span>
-
-                    <span>
-                        Blocked
-                    </span>
-
-                </div>
-
-
+                <span class="legend-item"><span class="legend-seat available"></span>Available</span>
+                <span class="legend-item"><span class="legend-seat selected"></span>Selected</span>
+                <span class="legend-item"><span class="legend-seat booked"></span>Booked</span>
+                <span class="legend-item"><span class="legend-seat blocked"></span>Unavailable</span>
             </div>
-
-
-
-            <!-- =================================================
-                 AIRCRAFT
-            ================================================== -->
 
             <div class="aircraft">
-
-
-                <div class="aircraft-header">
-
-                    ✈️ Aircraft
-
+                <div class="cockpit">FRONT</div>
+                <div class="seat-columns" aria-hidden="true">
+                    <span>A</span><span>B</span><span>C</span><span></span><span>D</span><span>E</span><span>F</span>
                 </div>
-
-
-                <div class="cockpit">
-
-                    FRONT
-
-                </div>
-
-
-                <!-- IMPORTANT:
-                     script.js uses .seat-map
-                -->
-
-                <div
-                    class="seat-map"
-                >
-
-                </div>
-
-
-                <div class="aircraft-back">
-
-                    REAR
-
-                </div>
-
-
+                <div id="seat-map" class="seat-map" role="group" aria-label="Seat map"></div>
+                <div class="aircraft-back">REAR</div>
             </div>
 
-
-
-            <!-- =================================================
-                 SELECTED SEAT
-            ================================================== -->
-
-            <div class="selected-seat-display">
-
-                Selected Seat:
-
-                <strong id="selected-seat">
-                    None
-                </strong>
-
+            <div class="seat-summary">
+                <div>
+                    <span class="seat-summary-label">Seats</span>
+                    <strong id="selected-seats">None selected</strong>
+                    <span id="seat-count" class="seat-count"></span>
+                </div>
+                <div class="seat-summary-total">
+                    <span class="seat-summary-label">Total fare</span>
+                    <strong id="total-fare">₹0</strong>
+                </div>
             </div>
 
+            <ul id="seat-assignments" class="seat-assignments"></ul>
 
-
-            <!-- =================================================
-                 CONFIRM BOOKING
-                 THIS IS THE FINAL BUTTON
-            ================================================== -->
-
-            <button
-                type="button"
-                class="confirm-booking-btn"
-                onclick="confirmBooking()"
-            >
-
-                Confirm Booking ✓
-
+            <button type="button" id="confirm-booking" class="sb-btn sb-btn-primary sb-btn-block confirm-btn" disabled>
+                Confirm &amp; Pay ✓
             </button>
-
-
+            <p class="confirm-note">Payment is simulated for this demo — no card details needed.</p>
         </section>
-
 
     </main>
 
-
-
-    <!-- =====================================================
-         CUSTOM ALERT
-    ====================================================== -->
-
-    <div
-        id="custom-alert"
-        class="custom-alert-overlay"
-    >
-
-        <div class="custom-alert-box">
-
-
-            <div class="custom-alert-icon">
-
-                ⚠️
-
-            </div>
-
-
-            <h2 id="custom-alert-title">
-
-                Alert
-
-            </h2>
-
-
-            <p id="custom-alert-message">
-
-                Please check your information.
-
-            </p>
-
-
-            <button
-                type="button"
-                onclick="closeCustomAlert()"
-            >
-
-                OK
-
-            </button>
-
-
-        </div>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         JAVASCRIPT
-    ====================================================== -->
-
+    <script src="common.js"></script>
     <script src="script.js"></script>
-
-
 </body>
-
 </html>

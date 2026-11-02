@@ -1,169 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>SkyBook - Manage Seats</title>
-
-    <link rel="stylesheet" href="admin-seats.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="admin.css">
+    <script src="common.js"></script>
+    <script>SkyBook.requireAdmin();</script>
 </head>
-
 <body>
 
-    <!-- NAVBAR -->
-    <header class="navbar">
-
-        <div class="logo">
-            ✈️ SkyBook
-        </div>
-
-        <div class="nav-actions">
-
-            <button id="dashboardBtn" class="nav-btn">
-                Dashboard
-            </button>
-
-            <button id="logoutBtn" class="logout-btn">
-                Logout
-            </button>
-
-        </div>
-
+    <header class="sb-nav">
+        <a href="index.html" class="sb-logo">✈️ SkyBook <span class="admin-tag">Admin</span></a>
+        <nav class="sb-nav-links" data-nav-links aria-label="Admin">
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="admin-seats.html">Manage Seats</a>
+            <a href="index.html">View site</a>
+        </nav>
     </header>
 
+    <main class="sb-page">
 
-    <!-- MAIN -->
-    <main class="container">
-
-        <div class="page-header">
-
+        <section class="dashboard-header">
             <div>
+                <p class="sb-eyebrow">Administration</p>
                 <h1>Manage Seats</h1>
-
-                <p>
-                    Select a flight to manage its seats.
-                </p>
+                <p class="dashboard-subtitle">Block seats on a flight (for crew, repairs or holds) and see who's booked on any date.</p>
             </div>
-
-        </div>
-
-
-        <!-- FLIGHT SELECTOR -->
-        <section class="control-card">
-
-            <label for="flightSelect">
-                Select Flight
-            </label>
-
-            <select id="flightSelect">
-
-                <option value="">
-                    -- Select a Flight --
-                </option>
-
-            </select>
-
         </section>
 
 
-        <!-- FLIGHT INFORMATION -->
-        <section id="flightInfo" class="flight-info hidden">
-
-            <div>
-                <span>Flight</span>
-                <strong id="flightNumber">-</strong>
+        <!-- ================= CONTROLS ================= -->
+        <section class="seat-controls sb-card">
+            <div class="sb-field">
+                <label for="flight-select">Flight</label>
+                <select id="flight-select">
+                    <option value="">Loading flights…</option>
+                </select>
             </div>
-
-            <div>
-                <span>Route</span>
-                <strong id="flightRoute">-</strong>
+            <div class="sb-field">
+                <label for="seat-date">Show bookings for</label>
+                <input type="date" id="seat-date">
             </div>
-
-            <div>
-                <span>Aircraft</span>
-                <strong id="aircraftInfo">-</strong>
-            </div>
-
-            <div>
-                <span>Capacity</span>
-                <strong id="capacityInfo">-</strong>
-            </div>
-
         </section>
 
 
-        <!-- LEGEND -->
-        <section id="seatSection" class="hidden">
+        <!-- ================= FLIGHT INFO ================= -->
+        <section id="flight-info" class="flight-info sb-card" hidden>
+            <div><span>Flight</span><strong id="info-flight">–</strong></div>
+            <div><span>Route</span><strong id="info-route">–</strong></div>
+            <div><span>Aircraft</span><strong id="info-aircraft">–</strong></div>
+            <div><span>Available</span><strong id="info-available" class="text-success">–</strong></div>
+            <div><span>Booked</span><strong id="info-booked">–</strong></div>
+            <div><span>Blocked</span><strong id="info-blocked" class="text-muted">–</strong></div>
+        </section>
 
-            <div class="legend">
 
-                <div class="legend-item">
-                    <span class="legend-seat available"></span>
-                    Available
-                </div>
+        <!-- ================= SEAT MAP ================= -->
+        <section id="seat-section" class="seat-panel sb-card" hidden>
 
-                <div class="legend-item">
-                    <span class="legend-seat blocked"></span>
-                    Blocked
-                </div>
-
-                <div class="legend-item">
-                    <span class="legend-seat booked"></span>
-                    Booked
-                </div>
-
+            <div class="seat-legend">
+                <span class="legend-item"><span class="legend-seat available"></span>Available — click to block</span>
+                <span class="legend-item"><span class="legend-seat blocked"></span>Blocked — click to release</span>
+                <span class="legend-item"><span class="legend-seat booked"></span>Booked on this date</span>
+                <span class="legend-item"><span class="legend-seat maintenance"></span>Out of service (aircraft)</span>
             </div>
 
-
-            <!-- SEAT MAP -->
             <div class="aircraft">
-
-                <div class="cockpit">
-                    ✈️ FRONT
+                <div class="cockpit">FRONT</div>
+                <div class="seat-columns" aria-hidden="true">
+                    <span>A</span><span>B</span><span>C</span><span></span><span>D</span><span>E</span><span>F</span>
                 </div>
-
-                <div id="seatMap" class="seat-map"></div>
-
-                <div class="aircraft-back">
-                    REAR
-                </div>
-
+                <div id="seat-map" class="seat-map" role="group" aria-label="Seat map"></div>
+                <div class="aircraft-back">REAR</div>
             </div>
 
-
-            <div class="seat-help">
-                Click an <strong>Available</strong> seat to block it.
-                Click a <strong>Blocked</strong> seat to make it available.
-                Booked seats cannot be changed.
-            </div>
-
+            <p class="seat-help">
+                Blocking applies to this flight on <strong>every</strong> date. Seats with upcoming bookings can't be blocked.
+            </p>
         </section>
 
-
-        <!-- LOADING -->
-        <div id="loading" class="loading hidden">
-            Loading seats...
-        </div>
-
-
-        <!-- CUSTOM ALERT -->
-        <div id="alertBox" class="alert hidden">
-
-            <span id="alertMessage"></span>
-
-            <button id="alertClose">
-                ×
-            </button>
-
+        <div id="seat-placeholder" class="sb-card sb-empty">
+            <div class="sb-empty-icon">💺</div>
+            <h3>Choose a flight</h3>
+            <p>Pick a flight above to see its seat map.</p>
         </div>
 
     </main>
 
-
     <script src="admin-seats.js"></script>
-
 </body>
-
 </html>

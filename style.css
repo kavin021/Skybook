@@ -1,95 +1,29 @@
 /* =====================================================
-   SKYBOOK - FINAL STYLE.CSS
+   SKYBOOK — HOME / BOOKING PAGE (index.html)
+   Shared pieces (nav, buttons, fields) live in common.css
 ===================================================== */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #eaf6ff;
-    color: #17324d;
-    min-height: 100vh;
-}
 
 
 /* =====================================================
-   NAVIGATION
+   HERO
 ===================================================== */
 
-nav {
-    height: 72px;
-    width: 100%;
-    padding: 0 7%;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    background: #ffffff;
-    border-bottom: 1px solid #d8eaf6;
-
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
-
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-.logo {
-    font-size: 25px;
-    font-weight: 800;
-    color: #1769aa;
-}
-
-.nav-links {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: #49677f;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.nav-links a:hover {
-    color: #0879c9;
-}
-
-
-/* =====================================================
-   MAIN
-===================================================== */
-
-main {
-    width: 86%;
-    max-width: 1250px;
-    margin: auto;
-    padding: 65px 0 100px;
-}
-
-main > h1 {
+.hero {
     text-align: center;
-    font-size: 44px;
-    color: #173f63;
-    margin-bottom: 12px;
+    margin-bottom: 36px;
+}
+
+.hero h1 {
+    color: var(--sb-ink);
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
 }
 
 .subtitle {
-    text-align: center;
-    color: #708ba1;
+    color: var(--sb-muted);
     font-size: 17px;
-    margin-bottom: 45px;
 }
 
 
@@ -98,152 +32,158 @@ main > h1 {
 ===================================================== */
 
 .search-box {
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 30px;
-
+    padding: 26px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr auto;
-    gap: 18px;
+    grid-template-columns: 1fr auto 1fr 1fr 0.8fr auto;
+    gap: 16px;
     align-items: end;
-
-    border: 1px solid #d8eaf6;
-
-    box-shadow: 0 12px 35px rgba(34, 85, 120, 0.10);
 }
 
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.input-group label {
-    font-size: 14px;
+.swap-btn {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 4px;
+    border: 1px solid #cfe3ef;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--sb-primary);
+    font-size: 18px;
     font-weight: 700;
-    color: #365873;
-}
-
-.input-group input,
-.input-group select {
-    width: 100%;
-    height: 48px;
-
-    padding: 0 14px;
-
-    border: 1px solid #c8dceb;
-    border-radius: 9px;
-
-    background: #ffffff;
-    color: #17324d;
-
-    font-size: 15px;
-    outline: none;
-}
-
-.input-group input:focus,
-.input-group select:focus {
-    border-color: #0879c9;
-    box-shadow: 0 0 0 3px rgba(8, 121, 201, 0.10);
-}
-
-
-/* =====================================================
-   GENERAL BUTTONS
-===================================================== */
-
-.search-box button,
-.passenger-card button {
-    height: 48px;
-    padding: 0 24px;
-
-    border: none;
-    border-radius: 9px;
-
-    background: linear-gradient(
-        135deg,
-        #1769aa,
-        #0879c9
-    );
-
-    color: #ffffff;
-
-    font-size: 15px;
-    font-weight: 700;
-
     cursor: pointer;
-
-    transition: 0.2s;
+    transition: transform 0.25s, background 0.2s;
 }
 
-.search-box button:hover,
-.passenger-card button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(11, 79, 134, 0.25);
+.swap-btn:hover {
+    background: #edf8ff;
+    transform: rotate(180deg);
+}
+
+.search-btn {
+    height: 48px;
 }
 
 
 /* =====================================================
-   FLIGHT RESULTS
+   STEPS
 ===================================================== */
 
-.flight-results {
-    margin-top: 70px;
+.steps {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 40px 0 10px;
+    list-style: none;
+    counter-reset: step;
 }
 
-.flight-results h2,
-.passenger-section h2,
-.seat-section h2 {
-    font-size: 30px;
-    color: #173f63;
-    margin-bottom: 25px;
+.steps li {
+    counter-increment: step;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8aa0b3;
+    font-size: 13px;
+    font-weight: 700;
 }
 
-#flight-list {
+.steps li::before {
+    content: counter(step);
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #dcecf6;
+    color: #6f8699;
+    font-size: 12px;
+}
+
+.steps li:not(:last-child)::after {
+    content: "";
+    width: 40px;
+    height: 2px;
+    margin-left: 4px;
+    background: #dcecf6;
+}
+
+.steps li.active {
+    color: var(--sb-primary);
+}
+
+.steps li.active::before {
+    background: var(--sb-primary);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(8, 121, 201, 0.3);
+}
+
+.steps li.done {
+    color: var(--sb-success);
+}
+
+.steps li.done::before {
+    content: "✓";
+    background: var(--sb-success-bg);
+    color: var(--sb-success);
+}
+
+.steps li.done::after {
+    background: #a8dcbd;
+}
+
+
+/* =====================================================
+   BOOKING STEPS
+===================================================== */
+
+.booking-step {
+    margin-top: 44px;
+    scroll-margin-top: 90px;
+}
+
+
+/* =====================================================
+   FLIGHT CARDS
+===================================================== */
+
+.flight-list {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 16px;
 }
-
-
-/* =====================================================
-   FLIGHT CARD
-===================================================== */
 
 .flight-card {
-    background: #ffffff;
-
-    border: 1px solid #dcecf7;
-    border-radius: 16px;
-
-    padding: 25px;
-
+    padding: 22px 26px;
     display: grid;
-    grid-template-columns: 1.1fr 2fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
     align-items: center;
+    gap: 24px;
+    box-shadow: var(--sb-shadow-sm);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
 
-    gap: 25px;
+.flight-card:hover {
+    border-color: #a9d8eb;
+}
 
-    box-shadow: 0 8px 25px rgba(40, 90, 125, 0.08);
+.flight-card.selected {
+    border-color: var(--sb-primary);
+    box-shadow: 0 0 0 3px rgba(8, 121, 201, 0.15), var(--sb-shadow-sm);
 }
 
 .airline-info {
     display: flex;
     flex-direction: column;
-    gap: 7px;
-
-    padding-right: 20px;
-
-    border-right: 1px dashed #d4dce7;
+    gap: 5px;
 }
 
 .airline-name {
-    color: #1769aa;
+    color: var(--sb-ink);
+    font-size: 16px;
     font-weight: 800;
 }
 
-.flight-number {
-    color: #7b91a5;
+.flight-meta {
+    color: var(--sb-muted);
     font-size: 13px;
 }
 
@@ -251,124 +191,151 @@ main > h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 25px;
+    gap: 22px;
 }
 
 .time-location {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    text-align: center;
+    align-items: center;
+    gap: 4px;
+    min-width: 80px;
 }
 
 .time-location strong {
-    font-size: 23px;
-    color: #173f63;
+    color: var(--sb-ink);
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.time-location sup {
+    margin-left: 2px;
+    color: var(--sb-warn);
+    font-size: 11px;
 }
 
 .time-location span {
+    color: var(--sb-muted);
     font-size: 13px;
-    color: #71889c;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .flight-duration {
+    flex: 1;
+    max-width: 160px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-
-    color: #7a8fa3;
+    gap: 4px;
+    color: var(--sb-muted);
     font-size: 12px;
 }
 
 .flight-line {
-    width: 90px;
-    height: 1px;
+    position: relative;
+    width: 100%;
+    height: 2px;
     background: #b9cfdf;
-    text-align: center;
+}
+
+.flight-line::after {
+    content: "✈";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -52%);
+    padding: 0 4px;
+    background: #fff;
+    color: var(--sb-primary);
+    font-size: 13px;
 }
 
 .flight-price {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 12px;
-
-    padding-left: 20px;
-
-    border-left: 1px dashed #d4dce7;
+    gap: 3px;
 }
 
 .flight-price strong {
-    font-size: 21px;
-    color: #173f63;
+    color: var(--sb-ink);
+    font-size: 22px;
+    font-weight: 800;
 }
 
-.flight-price button {
-    border: none;
-    border-radius: 8px;
+.per-person {
+    color: var(--sb-muted);
+    font-size: 12px;
+}
 
-    padding: 11px 18px;
-
-    background: #0879c9;
-    color: #ffffff;
-
+.seats-left {
+    margin: 4px 0 8px;
+    color: var(--sb-success);
+    font-size: 12px;
     font-weight: 700;
-    cursor: pointer;
+}
+
+.seats-left.low {
+    color: var(--sb-warn);
 }
 
 
 /* =====================================================
-   NO FLIGHTS
+   PASSENGER FORMS
 ===================================================== */
 
-.no-flights {
-    background: #ffffff;
-    padding: 40px;
-    text-align: center;
-
-    border-radius: 15px;
-    border: 1px solid #dcecf7;
+.passenger-form {
+    padding: 28px;
 }
 
-.no-flights h3 {
-    color: #1769aa;
-    margin-bottom: 10px;
-}
-
-.no-flights p {
-    color: #71889c;
-}
-
-
-/* =====================================================
-   PASSENGER SECTION
-===================================================== */
-
-.passenger-section {
-    margin-top: 70px;
-}
-
-.passenger-card {
-    background: #ffffff;
-
-    border-radius: 18px;
-    padding: 35px;
-
+.passenger-list {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-
-    gap: 22px;
-
-    border: 1px solid #dcecf7;
-
-    box-shadow: 0 10px 30px rgba(40, 90, 125, 0.08);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 22px;
 }
 
-.passenger-card button {
-    grid-column: 1 / -1;
-    width: 100%;
+.passenger-card-item {
+    padding: 20px 22px 8px;
+    border: 1px solid var(--sb-border);
+    border-radius: 14px;
+    background: #fbfdff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.passenger-card-item legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px;
+    color: var(--sb-ink);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.passenger-card-item legend small {
+    color: var(--sb-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-num {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--sb-primary), var(--sb-accent));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.passenger-card-item .sb-field-error {
+    min-height: 16px;
 }
 
 
@@ -377,282 +344,184 @@ main > h1 {
 ===================================================== */
 
 .seat-section {
-    margin-top: 70px;
-
-    background: #ffffff;
-
-    border-radius: 20px;
-    padding: 40px;
-
-    border: 1px solid #dcecf7;
-
-    box-shadow: 0 12px 35px rgba(40, 90, 125, 0.08);
+    padding: 34px;
 }
 
-.seat-section h2 {
-    text-align: center;
+.seat-head {
+    align-items: center;
 }
-
-
-/* =====================================================
-   SELECTED FLIGHT
-===================================================== */
 
 .selected-flight-info {
-    background: #eaf6ff;
-
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 14px;
+    padding: 16px 20px;
     border-radius: 12px;
-    padding: 16px;
+    background: var(--sb-soft);
+    border: 1px solid var(--sb-border);
+}
 
-    text-align: center;
-
-    margin-bottom: 25px;
-
-    color: #1769aa;
-
+.selected-flight-info div {
     display: flex;
-    justify-content: center;
-    gap: 15px;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.selected-flight-info span {
+    color: var(--sb-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.selected-flight-info strong {
+    color: var(--sb-ink);
+    font-size: 15px;
 }
 
 
-/* =====================================================
-   SEAT LEGEND
-===================================================== */
+/* Legend */
 
 .seat-legend {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-
-    gap: 28px;
-
-    margin: 25px 0;
+    gap: 12px 26px;
+    margin: 24px 0;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
-
-    color: #617d95;
+    color: #5f7a90;
     font-size: 14px;
 }
 
 .legend-seat {
     width: 20px;
     height: 20px;
-
     border-radius: 5px;
-
-    display: inline-block;
-
     border: 1px solid #b8d0e8;
 }
 
-.legend-seat.available {
-    background: #ffffff;
-}
-
-.legend-seat.selected {
-    background: #0879c9;
-    border-color: #0879c9;
-}
-
-.legend-seat.occupied {
-    background: #687d8f;
-    border-color: #687d8f;
-}
-
-.legend-seat.blocked {
-    background: #c7cdd2;
+.legend-seat.available { background: #fff; }
+.legend-seat.selected  { background: var(--sb-primary); border-color: var(--sb-primary); }
+.legend-seat.booked    { background: #687d8f; border-color: #687d8f; }
+.legend-seat.blocked   {
+    background: repeating-linear-gradient(45deg, #dfe4e8, #dfe4e8 3px, #c7cdd2 3px, #c7cdd2 6px);
     border-color: #aeb6bd;
 }
 
 
-/* =====================================================
-   AIRCRAFT
-===================================================== */
+/* Aircraft */
 
 .aircraft {
-    width: 100%;
-    max-width: 850px;
-
-    margin: 30px auto;
-
-    padding: 30px;
-
-    background: linear-gradient(
-        180deg,
-        #f8fcff,
-        #eaf6fc
-    );
-
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 26px 20px;
     border: 1px solid #cfe5f4;
-    border-radius: 28px;
-}
-
-.aircraft-header {
-    background: #e3f3fd;
-
-    color: #0879c9;
-
-    font-size: 20px;
-    font-weight: 800;
-
-    text-align: center;
-
-    padding: 16px;
-
-    border-radius: 12px;
-
-    margin-bottom: 30px;
+    border-radius: 120px 120px 28px 28px;
+    background: linear-gradient(180deg, #f8fcff, #eaf6fc);
+    overflow-x: auto;
 }
 
 .cockpit,
 .aircraft-back {
-    text-align: center;
-
-    font-size: 12px;
-    font-weight: 700;
-
     color: #8aa0b3;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
 }
 
 .cockpit {
-    margin-bottom: 20px;
+    margin: 20px 0 16px;
 }
 
 .aircraft-back {
-    margin-top: 25px;
+    margin-top: 18px;
 }
 
+.seat-columns,
+.seat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 44px) 34px repeat(3, 44px);
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
 
-/* =====================================================
-   SEAT MAP
-===================================================== */
+.seat-columns {
+    margin-bottom: 8px;
+    color: #8aa0b3;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
 
 .seat-map {
     display: flex;
     flex-direction: column;
-
-    gap: 12px;
-
-    width: max-content;
-
-    max-width: 100%;
-
-    margin: auto;
-
-    overflow-x: auto;
+    gap: 8px;
+    max-height: 560px;
+    overflow-y: auto;
+    padding: 4px;
 }
 
-.seat-row {
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
+.aisle {
+    color: #9ab0c2;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
 }
 
-
-/* =====================================================
-   SEAT
-===================================================== */
+.seat,
+.seat-empty {
+    width: 44px;
+    height: 40px;
+}
 
 .seat {
-    width: 58px;
-    height: 48px;
-
-    border-radius: 10px;
-
-    font-size: 15px;
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition:
-        transform 0.2s,
-        background 0.2s,
-        box-shadow 0.2s;
-
-    background: #ffffff;
-
-    color: #0879c9;
-
     border: 1px solid #b8d0e8;
-}
-
-
-/* AVAILABLE */
-
-.seat.available {
-    background: #ffffff;
-    color: #0879c9;
-    border-color: #b8d0e8;
+    border-radius: 9px 9px 6px 6px;
+    background: #fff;
+    color: var(--sb-primary);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
 .seat.available:hover {
     background: #e5f3fc;
-
     transform: translateY(-2px);
-
-    box-shadow:
-        0 5px 12px rgba(
-            8,
-            121,
-            201,
-            0.15
-        );
+    box-shadow: 0 5px 12px rgba(8, 121, 201, 0.15);
 }
-
-
-/* SELECTED */
 
 .seat.selected {
-    background: linear-gradient(
-        135deg,
-        #1769aa,
-        #0879c9
-    );
-
-    color: #ffffff;
-
-    border-color: #0879c9;
-
-    box-shadow:
-        0 6px 16px rgba(
-            8,
-            121,
-            201,
-            0.30
-        );
-
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, var(--sb-primary-dark), var(--sb-primary));
+    border-color: var(--sb-primary);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(8, 121, 201, 0.3);
 }
 
+.seat-pax {
+    font-size: 11px;
+}
 
-/* BOOKED */
-
-.seat.occupied {
+.seat.booked {
     background: #687d8f;
-
-    color: #ffffff;
-
     border-color: #687d8f;
-
+    color: #fff;
     cursor: not-allowed;
 }
 
-
-/* BLOCKED */
-
 .seat.blocked {
-    background: #c7cdd2;
-
-    color: #ffffff;
-
+    background: repeating-linear-gradient(45deg, #dfe4e8, #dfe4e8 3px, #c7cdd2 3px, #c7cdd2 6px);
     border-color: #aeb6bd;
-
+    color: #7c8a96;
     cursor: not-allowed;
 }
 
@@ -661,282 +530,117 @@ main > h1 {
 }
 
 
-/* =====================================================
-   AISLE
-===================================================== */
+/* Summary */
 
-.aisle {
-    width: 35px;
-    flex-shrink: 0;
-}
-
-.seat-empty {
-    width: 58px;
-    height: 48px;
-    flex-shrink: 0;
-}
-
-
-/* =====================================================
-   SELECTED SEAT DISPLAY
-===================================================== */
-
-.selected-seat-display {
-    width: 100%;
-
-    margin-top: 30px;
-
-    padding: 18px;
-
+.seat-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 26px;
+    padding: 18px 22px;
     border-radius: 12px;
-
-    background: #eaf6ff;
-
-    color: #617d95;
-
-    text-align: center;
-
-    font-size: 17px;
+    background: var(--sb-soft);
+    border: 1px solid var(--sb-border);
 }
 
-.selected-seat-display strong {
-    color: #0879c9;
-    font-size: 19px;
+.seat-summary-label {
+    display: block;
+    color: var(--sb-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
-
-/* =====================================================
-   CONFIRM BOOKING
-===================================================== */
-
-/*
-   IMPORTANT:
-   This handles BOTH:
-
-   class="continue-button"
-
-   AND
-
-   class="confirm-booking-btn"
-
-   So either class will work.
-*/
-
-.continue-button,
-.confirm-booking-btn {
-    display: block !important;
-
-    width: 100% !important;
-
-    height: 54px !important;
-
-    margin-top: 25px !important;
-
-    padding: 0 25px !important;
-
-    border: none !important;
-
-    border-radius: 10px !important;
-
-    background: linear-gradient(
-        135deg,
-        #1769aa,
-        #0879c9
-    ) !important;
-
-    color: #ffffff !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-
-    font-size: 16px !important;
-
-    font-weight: 700 !important;
-
-    line-height: normal !important;
-
-    cursor: pointer !important;
-
-    box-shadow:
-        0 5px 15px rgba(
-            8,
-            121,
-            201,
-            0.18
-        ) !important;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease !important;
-
-    appearance: none !important;
-
-    -webkit-appearance: none !important;
+.seat-summary strong {
+    color: var(--sb-ink);
+    font-size: 18px;
 }
 
-.continue-button:hover,
-.confirm-booking-btn:hover {
-    background: linear-gradient(
-        135deg,
-        #0f5d96,
-        #0569ad
-    ) !important;
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 9px 22px rgba(
-            8,
-            121,
-            201,
-            0.30
-        ) !important;
+.seat-count {
+    margin-left: 6px;
+    color: var(--sb-muted);
+    font-size: 13px;
 }
 
-.continue-button:active,
-.confirm-booking-btn:active {
-    transform: translateY(0);
+.seat-summary-total {
+    text-align: right;
 }
 
+.seat-summary-total strong {
+    color: var(--sb-primary);
+    font-size: 24px;
+}
 
-/* =====================================================
-   SEAT LOADING / ERROR
-===================================================== */
+.seat-assignments {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 16px 0 0;
+    list-style: none;
+}
 
-.seat-loading,
-.seat-error {
-    padding: 30px;
+.seat-assignments li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--sb-border);
+    border-radius: 10px;
+    background: #fff;
+}
 
-    text-align: center;
+.assignment-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--sb-text);
+    font-size: 14px;
+}
 
-    color: #71889c;
+.seat-assignments strong {
+    color: var(--sb-primary);
+}
 
+.seat-assignments strong.pending {
+    color: #9ab0c2;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.confirm-btn {
+    margin-top: 22px;
+    min-height: 54px;
     font-size: 16px;
 }
 
-.seat-error {
-    color: #c14d4d;
-}
-
-
-/* =====================================================
-   CUSTOM ALERT
-===================================================== */
-
-.custom-alert-overlay {
-    position: fixed;
-
-    inset: 0;
-
-    background: rgba(
-        20,
-        45,
-        65,
-        0.55
-    );
-
-    display: none;
-
-    align-items: center;
-    justify-content: center;
-
-    z-index: 9999;
-
-    backdrop-filter: blur(4px);
-}
-
-.custom-alert-overlay.show {
-    display: flex;
-}
-
-.custom-alert-box {
-    width: 400px;
-    max-width: 90%;
-
-    background: #ffffff;
-
-    border-radius: 20px;
-
-    padding: 35px 30px;
-
+.confirm-note {
+    margin-top: 10px;
+    color: var(--sb-muted);
+    font-size: 12px;
     text-align: center;
-
-    box-shadow:
-        0 20px 60px rgba(
-            0,
-            0,
-            0,
-            0.30
-        );
-}
-
-.custom-alert-icon {
-    width: 65px;
-    height: 65px;
-
-    margin: 0 auto 18px;
-
-    border-radius: 50%;
-
-    background: #eaf6ff;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    font-size: 32px;
-}
-
-.custom-alert-box h2 {
-    margin-bottom: 10px;
-
-    color: #17324d;
-
-    font-size: 23px;
-}
-
-.custom-alert-box p {
-    color: #6d8296;
-
-    line-height: 1.5;
-
-    margin-bottom: 25px;
-}
-
-.custom-alert-box button {
-    width: 120px;
-    height: 44px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: #0879c9;
-
-    color: #ffffff;
-
-    font-size: 15px;
-    font-weight: 700;
-
-    cursor: pointer;
-}
-
-.custom-alert-box button:hover {
-    background: #0563a5;
 }
 
 
 /* =====================================================
-   MOBILE
+   RESPONSIVE
 ===================================================== */
 
 @media (max-width: 1000px) {
-
     .search-box {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr auto 1fr;
     }
 
-    .search-box button {
+    .search-box .sb-field:nth-of-type(3),
+    .search-box .sb-field:nth-of-type(4) {
+        grid-column: span 1;
+    }
+
+    .search-btn {
         grid-column: 1 / -1;
     }
 
@@ -945,818 +649,72 @@ main > h1 {
         text-align: center;
     }
 
-    .airline-info {
-        align-items: center;
-
-        padding-right: 0;
-        padding-bottom: 15px;
-
-        border-right: none;
-        border-bottom: 1px dashed #d4dce7;
-    }
-
+    .airline-info,
     .flight-price {
         align-items: center;
-
-        padding-left: 0;
-        padding-top: 15px;
-
-        border-left: none;
-        border-top: 1px dashed #d4dce7;
-    }
-
-    .passenger-card {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .passenger-card button {
-        grid-column: 1 / -1;
     }
 }
 
-
-@media (max-width: 650px) {
-
-    nav {
-        height: auto;
-
-        padding: 18px 20px;
-
-        flex-direction: column;
-
-        gap: 15px;
-    }
-
-    .nav-links {
-        gap: 15px;
-
-        flex-wrap: wrap;
-
-        justify-content: center;
-    }
-
-    main {
-        width: 92%;
-        padding: 45px 0 70px;
-    }
-
-    main > h1 {
-        font-size: 34px;
-    }
-
+@media (max-width: 640px) {
     .search-box {
         grid-template-columns: 1fr;
-        padding: 22px;
+        padding: 20px;
     }
 
-    .search-box button {
-        grid-column: auto;
+    .swap-btn {
+        justify-self: center;
+        transform: rotate(90deg);
+        margin: 0;
     }
 
-    .passenger-card {
-        grid-template-columns: 1fr;
-        padding: 25px;
+    .swap-btn:hover {
+        transform: rotate(270deg);
     }
 
-    .passenger-card button {
-        grid-column: auto;
+    .steps li {
+        font-size: 0;
     }
 
-    .seat-section {
-        padding: 25px 12px;
+    .steps li::after {
+        width: 22px;
     }
 
-    .seat-legend {
-        gap: 12px;
-        flex-wrap: wrap;
+    .seat-section,
+    .passenger-form {
+        padding: 20px 14px;
     }
-
-    .aircraft {
-        padding: 20px 10px;
-        overflow-x: auto;
-    }
-
-    .seat {
-        width: 45px;
-        height: 42px;
-        font-size: 13px;
-    }
-
-    .seat-empty {
-        width: 45px;
-        height: 42px;
-    }
-
-    .aisle {
-        width: 15px;
-    }
-
-    .seat-row {
-        gap: 7px;
-    }
-
-    .selected-flight-info {
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .flight-route {
-        gap: 8px;
-    }
-
-    .flight-line {
-        width: 55px;
-    }
-}
-/* =========================================================
-   SKYBOOK - PREMIUM PASSENGER DETAILS DESIGN
-   VISUAL ONLY
-   DOES NOT CHANGE BOOKING LOGIC
-========================================================= */
-
-
-/* =========================================================
-   PASSENGER SECTION
-========================================================= */
-
-.passenger-section {
-    margin-top: 80px !important;
-    position: relative;
-}
-
-
-/* =========================================================
-   PASSENGER SECTION TITLE
-========================================================= */
-
-.passenger-section > h2 {
-    font-size: 34px !important;
-    font-weight: 800 !important;
-    color: #123f68 !important;
-    margin-bottom: 10px !important;
-    letter-spacing: -0.5px;
-}
-
-
-/* Small decorative line */
-
-.passenger-section > h2::after {
-    content: "";
-    display: block;
-    width: 65px;
-    height: 4px;
-    margin-top: 12px;
-    border-radius: 10px;
-    background: linear-gradient(
-        90deg,
-        #0879c9,
-        #55b7ef
-    );
-}
-
-
-/* =========================================================
-   PASSENGER MAIN CONTAINER
-========================================================= */
-
-.passenger-card {
-    display: block !important;
-
-    background:
-        linear-gradient(
-            180deg,
-            #ffffff 0%,
-            #f9fcff 100%
-        ) !important;
-
-    border: 1px solid #d8e9f5 !important;
-
-    border-radius: 24px !important;
-
-    padding: 38px !important;
-
-    box-shadow:
-        0 18px 50px
-        rgba(21, 83, 125, 0.13) !important;
-
-    position: relative;
-
-    overflow: hidden;
-}
-
-
-/* Decorative top glow */
-
-.passenger-card::before {
-    content: "";
-
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 5px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #0879c9,
-            #27a4e8,
-            #7ac8f3
-        );
-}
-
-
-/* =========================================================
-   PASSENGER LIST
-========================================================= */
-
-.passenger-list {
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            2,
-            minmax(0, 1fr)
-        );
-
-    gap: 24px;
-
-    position: relative;
-
-    z-index: 1;
-}
-
-
-/* =========================================================
-   PASSENGER COUNT / INTRO
-========================================================= */
-
-.passenger-count-text {
-    grid-column: 1 / -1;
-
-    margin: 0 0 4px 0;
-
-    padding: 18px 22px;
-
-    border-radius: 14px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #eaf6ff,
-            #f5fbff
-        );
-
-    border: 1px solid #cfe7f6;
-
-    color: #174b76;
-
-    font-size: 17px;
-
-    font-weight: 500;
-
-    box-shadow:
-        0 5px 18px
-        rgba(17, 91, 140, 0.06);
-}
-
-
-.passenger-count-text strong {
-    color: #0879c9;
-
-    font-size: 19px;
-}
-
-
-/* =========================================================
-   PASSENGER CARD
-========================================================= */
-
-.passenger-card-item {
-    background: #ffffff;
-
-    border: 1px solid #dcebf5;
-
-    border-radius: 18px;
-
-    padding: 25px;
-
-    position: relative;
-
-    box-shadow:
-        0 8px 25px
-        rgba(28, 88, 126, 0.07);
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease,
-        border-color 0.25s ease;
-}
-
-
-/* Hover */
-
-.passenger-card-item:hover {
-    transform: translateY(-4px);
-
-    border-color: #a8d5ed;
-
-    box-shadow:
-        0 14px 32px
-        rgba(22, 103, 154, 0.13);
-}
-
-
-/* =========================================================
-   PASSENGER HEADING
-========================================================= */
-
-.passenger-card-item h3 {
-    margin: 0 0 25px 0;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-
-    color: #123f68;
-
-    font-size: 20px;
-
-    font-weight: 800;
-}
-
-
-/* Number badge */
-
-.passenger-card-item h3::before {
-    content:
-        attr(data-passenger);
-
-    width: 42px;
-
-    height: 42px;
-
-    min-width: 42px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 12px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #0879c9,
-            #1769aa
-        );
-
-    color: white;
-
-    font-size: 15px;
-
-    font-weight: 800;
-
-    box-shadow:
-        0 6px 15px
-        rgba(8, 121, 201, 0.25);
-}
-
-
-/* =========================================================
-   PASSENGER HEADING TEXT
-========================================================= */
-
-.passenger-card-item h3 {
-    font-size: 0;
-}
-
-
-.passenger-card-item h3::after {
-    content:
-        "Passenger "
-        attr(data-passenger);
-
-    font-size: 20px;
-
-    color: #123f68;
-
-    font-weight: 800;
-}
-
-
-/* =========================================================
-   INPUT GROUP
-========================================================= */
-
-.passenger-card-item .input-group {
-    margin-bottom: 19px;
-
-    gap: 8px;
-}
-
-
-/* =========================================================
-   LABELS
-========================================================= */
-
-.passenger-card-item .input-group label {
-    font-size: 13px;
-
-    font-weight: 800;
-
-    color: #365873;
-
-    letter-spacing: 0.2px;
-
-    padding-left: 2px;
-}
-
-
-/* =========================================================
-   INPUTS
-========================================================= */
-
-.passenger-card-item .input-group input {
-    width: 100%;
-
-    height: 52px;
-
-    padding:
-        0 16px;
-
-    border:
-        1px solid #cbdfea;
-
-    border-radius: 11px;
-
-    background:
-        #fafdff;
-
-    color:
-        #17324d;
-
-    font-size: 15px;
-
-    outline: none;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease,
-        transform 0.2s ease;
-}
-
-
-/* Placeholder */
-
-.passenger-card-item
-.input-group
-input::placeholder {
-    color: #8da0af;
-
-    opacity: 1;
-}
-
-
-/* Focus */
-
-.passenger-card-item
-.input-group
-input:focus {
-    background: #ffffff;
-
-    border-color: #0879c9;
-
-    box-shadow:
-        0 0 0 4px
-        rgba(8, 121, 201, 0.10);
-
-    transform:
-        translateY(-1px);
-}
-
-
-/* =========================================================
-   INPUT TYPE-SPECIFIC VISUAL ACCENTS
-========================================================= */
-
-.passenger-name-input {
-    background:
-        linear-gradient(
-            90deg,
-            #ffffff,
-            #fafdff
-        );
-}
-
-
-.passenger-email-input {
-    background:
-        linear-gradient(
-            90deg,
-            #ffffff,
-            #fafdff
-        );
-}
-
-
-.passenger-phone-input {
-    background:
-        linear-gradient(
-            90deg,
-            #ffffff,
-            #fafdff
-        );
-}
-
-
-/* =========================================================
-   CONTINUE BUTTON
-========================================================= */
-
-.passenger-list > button {
-    grid-column: 1 / -1;
-
-    width: 100%;
-
-    height: 58px;
-
-    margin-top: 5px;
-
-    border: none;
-
-    border-radius: 13px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #0879c9,
-            #1769aa
-        );
-
-    color: white;
-
-    font-size: 16px;
-
-    font-weight: 800;
-
-    letter-spacing: 0.2px;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 10px 25px
-        rgba(8, 121, 201, 0.25);
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
-
-
-/* Button hover */
-
-.passenger-list > button:hover {
-    transform:
-        translateY(-3px);
-
-    box-shadow:
-        0 15px 32px
-        rgba(8, 121, 201, 0.32);
-
-    background:
-        linear-gradient(
-            135deg,
-            #0788df,
-            #1769aa
-        );
-}
-
-
-/* Button click */
-
-.passenger-list > button:active {
-    transform:
-        translateY(0);
-}
-
-
-/* =========================================================
-   STEP INDICATOR
-========================================================= */
-
-.passenger-section::before {
-    content:
-        "STEP 2 OF 4  •  PASSENGER DETAILS";
-
-    display: inline-flex;
-
-    align-items: center;
-
-    margin-bottom: 14px;
-
-    padding:
-        7px 14px;
-
-    border-radius: 30px;
-
-    background:
-        #e7f5ff;
-
-    border:
-        1px solid #c8e5f5;
-
-    color:
-        #0879c9;
-
-    font-size:
-        11px;
-
-    font-weight:
-        800;
-
-    letter-spacing:
-        1px;
-}
-
-
-/* =========================================================
-   PROGRESS LINE
-========================================================= */
-
-.passenger-section::after {
-    content: "";
-
-    display: block;
-
-    width: 100%;
-
-    height: 5px;
-
-    margin-top: 25px;
-
-    margin-bottom: 25px;
-
-    border-radius: 20px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #0879c9 0%,
-            #0879c9 50%,
-            #dcecf6 50%,
-            #dcecf6 100%
-        );
-}
-
-
-/* =========================================================
-   DESKTOP - LARGE SCREENS
-========================================================= */
-
-@media (min-width: 1100px) {
-
-    .passenger-card {
-        padding: 42px !important;
-    }
-
-    .passenger-card-item {
-        padding: 28px;
-    }
-
-}
-
-
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 850px) {
 
     .passenger-list {
         grid-template-columns: 1fr;
     }
 
-
-    .passenger-card {
-        padding: 28px !important;
+    .aircraft {
+        padding: 20px 6px;
+        border-radius: 60px 60px 20px 20px;
     }
 
-
-    .passenger-count-text {
-        grid-column: auto;
+    .seat-columns,
+    .seat-row {
+        grid-template-columns: repeat(3, 36px) 24px repeat(3, 36px);
+        gap: 6px;
     }
 
-
-    .passenger-list > button {
-        grid-column: auto;
+    .seat,
+    .seat-empty {
+        width: 36px;
+        height: 34px;
+        font-size: 11px;
     }
 
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 650px) {
-
-    .passenger-section {
-        margin-top: 50px !important;
+    .time-location strong {
+        font-size: 20px;
     }
 
-
-    .passenger-section > h2 {
-        font-size: 28px !important;
+    .flight-route {
+        gap: 10px;
     }
 
-
-    .passenger-section::before {
-        font-size: 10px;
+    .seat-summary-total {
+        text-align: left;
     }
-
-
-    .passenger-card {
-        padding: 20px !important;
-
-        border-radius: 18px !important;
-    }
-
-
-    .passenger-card-item {
-        padding: 20px;
-
-        border-radius: 15px;
-    }
-
-
-    .passenger-card-item h3 {
-        margin-bottom: 20px;
-    }
-
-
-    .passenger-card-item
-    h3::before {
-        width: 38px;
-
-        height: 38px;
-
-        min-width: 38px;
-    }
-
-
-    .passenger-card-item
-    h3::after {
-        font-size: 18px;
-    }
-
-
-    .passenger-card-item
-    .input-group
-    input {
-        height: 50px;
-    }
-
-
-    .passenger-list > button {
-        height: 55px;
-
-        font-size: 15px;
-    }
-
-}
-
-
-/* =========================================================
-   EXTRA SMALL MOBILE
-========================================================= */
-
-@media (max-width: 420px) {
-
-    .passenger-card {
-        padding: 15px !important;
-    }
-
-
-    .passenger-card-item {
-        padding: 17px;
-    }
-
-
-    .passenger-count-text {
-        padding: 15px;
-
-        font-size: 15px;
-    }
-
 }
